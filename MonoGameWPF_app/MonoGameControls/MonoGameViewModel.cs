@@ -20,6 +20,8 @@ namespace Routing.MonoGameControls
         void OnExiting(object sender, EventArgs args);
 
         void SizeChanged(object sender, SizeChangedEventArgs args);
+
+        void setMapSize(Vector2 size);
     }
 
     public class MonoGameViewModel : ViewModel, IMonoGameViewModel
@@ -53,5 +55,7 @@ namespace Routing.MonoGameControls
         public virtual void OnDeactivated(object sender, EventArgs args) { }
         public virtual void OnExiting(object sender, EventArgs args) { }
         public virtual void SizeChanged(object sender, SizeChangedEventArgs args) { }
+
+        public virtual void setMapSize(Vector2 size) { }
     }
 }

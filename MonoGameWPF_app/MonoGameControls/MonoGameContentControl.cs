@@ -313,5 +313,10 @@ namespace Routing.MonoGameControls
 
             return true;
         }
+
+        public void setMapSize(Vector2 size)
+        {
+            _viewModel.setMapSize(size);
+        }
     }
 }
