@@ -10,38 +10,72 @@
     Title="Routing" 
     WindowStartupLocation="CenterScreen"
     Width="800"
-    Height="480">
+    Height="480"
+    MinWidth="800"
+    MinHeight="480">
     <Window.DataContext>
         <local:MainWindowViewModel />
     </Window.DataContext>
 
-    <DockPanel LastChildFill="True">
-        <Menu DockPanel.Dock="Top">
-            <MenuItem Header="_File">
-                <MenuItem Header="_New" />
-                <MenuItem Header="_Open..." />
-                <Separator />
-                <MenuItem Header="_Save" />
-                <MenuItem Header="Save _As..." />
-                <Separator />
-                <MenuItem Header="E_xit" />
-            </MenuItem>
-            <MenuItem Header="_Edit">
-                <MenuItem Header="_Undo" />
-                <MenuItem Header="_Redo" />
-                <Separator />
-                <MenuItem Header="Cu_t" />
-                <MenuItem Header="_Copy" />
-                <MenuItem Header="_Paste" />
-                <MenuItem Header="_Delete" />
-                <Separator />
-                <MenuItem Header="Select _All" />
-            </MenuItem>
-            <MenuItem Header="_Help">
-                <MenuItem Header="_About Routing" />
-            </MenuItem>
-        </Menu>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition></ColumnDefinition>
+        </Grid.ColumnDefinitions>
 
-        <monoGameControls:MonoGameContentControl />
-    </DockPanel>
+        <Border BorderBrush="Gray" BorderThickness="2" Grid.Row="0" Grid.Column="0">
+            <StackPanel>
+                <Label Content="Settings" HorizontalAlignment="Center" FontSize="24"></Label>
+                <GroupBox Header="Buildings" Padding="5">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Button Content="Base" Grid.Column="0" x:Name="BasePlaceBtn" Padding="20 5"/>
+                        <Separator Grid.Column="1" Opacity="0"></Separator>
+                        <Button Content="Airport" Grid.Column="2" x:Name="AirportPlaceBtn" Padding="20 5"/>
+                        <Separator Grid.Column="3" Opacity="0"></Separator>
+                        <Button Content="Train Station" Grid.Column="4" x:Name="TrainStationBtn" Padding="20 5"/>
+                    </Grid>
+                </GroupBox>
+                <GroupBox Header="Grounds" Padding="5">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Button Content="Basic" Grid.Column="0" x:Name="BasicGroundBtn" Padding="20 5"/>
+                        <Separator Grid.Column="1" Opacity="0"></Separator>
+                        <Button Content="Water" Grid.Column="2" x:Name="WaterGroundBtn" Padding="20 5"/>
+                    </Grid>
+                </GroupBox>
+                <GroupBox Header="Roads" Padding="5">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Button Content="Car" Grid.Column="0" x:Name="CarRoadBtn" Padding="20 5"/>
+                        <Separator Grid.Column="1" Opacity="0"></Separator>
+                        <Button Content="Railway" Grid.Column="2" x:Name="RailwayBtn" Padding="20 5"/>
+                        <Separator Grid.Column="3" Opacity="0"></Separator>
+                        <Button Content="Air road" Grid.Column="4" x:Name="AirWayBtn" Padding="20 5"/>
+                    </Grid>
+                </GroupBox>
+            </StackPanel>
+        </Border>
+
+        <monoGameControls:MonoGameContentControl Grid.Row="0" Grid.Column="1"/>
+    </Grid>
 </Window>
