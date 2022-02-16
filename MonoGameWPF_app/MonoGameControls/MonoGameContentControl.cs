@@ -138,6 +138,8 @@ namespace Routing.MonoGameControls
         protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
         {
             base.OnRenderSizeChanged(sizeInfo);
+
+            _viewModel.setSize(new Vector2((float)sizeInfo.NewSize.Width, (float)sizeInfo.NewSize.Height));
             
             // sometimes OnRenderSizeChanged happens before OnLoaded.
             Start();
@@ -317,6 +319,11 @@ namespace Routing.MonoGameControls
         public void setMapSize(Vector2 size)
         {
             _viewModel.setMapSize(size);
+        }
+
+        public void setMousePos(Vector2 pos)
+        {
+            _viewModel.setMousePos(pos);
         }
     }
 }

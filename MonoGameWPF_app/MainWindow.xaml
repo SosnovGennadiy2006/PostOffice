@@ -22,18 +22,42 @@
             <RowDefinition></RowDefinition>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition MaxWidth="400"></ColumnDefinition>
             <ColumnDefinition></ColumnDefinition>
         </Grid.ColumnDefinitions>
 
         <Border BorderBrush="Gray" BorderThickness="1" Padding="10" Grid.Row="0" Grid.Column="0">
             <StackPanel>
                 <Label Content="Settings" HorizontalAlignment="Center" FontSize="24"></Label>
-                <StackPanel Orientation="Horizontal">
-                    <Label Content="Map width: "></Label>
-                    <Separator Opacity="0" Width="30"></Separator>
-                    <TextBox TextWrapping="NoWrap" FontSize="16" Width="60" PreviewTextInput="textBox1_PreviewTextInput"></TextBox>
-                </StackPanel>
+                <GroupBox Header="Size" Padding="5">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                            <ColumnDefinition Width="auto"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition></RowDefinition>
+                            <RowDefinition></RowDefinition>
+                            <RowDefinition></RowDefinition>
+                            <RowDefinition></RowDefinition>
+                            <RowDefinition></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <Label Content="Map width: " Grid.Column="0" Grid.Row="0"></Label>
+                        <Separator Opacity="0" Width="30" Grid.Column="1" Grid.Row="0"></Separator>
+                        <TextBox TextWrapping="NoWrap" FontSize="16" Width="60" PreviewTextInput="textBox1_PreviewTextInput" Grid.Column="2" Grid.Row="0"></TextBox>
+                        
+                        <Separator Opacity="0" Height="15" Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1"></Separator>
+                        
+                        <Label Content="Map height: " Grid.Column="0" Grid.Row="2"></Label>
+                        <Separator Opacity="0" Width="30" Grid.Column="1" Grid.Row="2"></Separator>
+                        <TextBox TextWrapping="NoWrap" FontSize="16" Width="60" PreviewTextInput="textBox1_PreviewTextInput" Grid.Column="2" Grid.Row="2"></TextBox>
+
+                        <Separator Opacity="0" Height="15" Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="3"></Separator>
+
+                        <Button Content="Change" Grid.Row="4" Grid.Column="1" Padding="5" x:Name="changeMapSizeBtn"></Button>
+                    </Grid>
+                </GroupBox>
                 <GroupBox Header="Buildings" Padding="5">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -81,6 +105,6 @@
             </StackPanel>
         </Border>
 
-        <monoGameControls:MonoGameContentControl Grid.Row="0" Grid.Column="1" x:Name="Game"/>
+        <monoGameControls:MonoGameContentControl MouseMove="GameMouseMove" MouseLeave="GameMouseLeave" Grid.Row="0" Grid.Column="1" x:Name="Game"/>
     </Grid>
 </Window>

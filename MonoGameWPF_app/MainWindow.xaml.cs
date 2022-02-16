@@ -23,5 +23,16 @@ namespace Routing
         {
             e.Handled = !onlyNumeric(e.Text);
         }
+
+        private void GameMouseMove(object sender, MouseEventArgs e)
+        {
+            Vector2 mousePos = new Vector2((float)e.GetPosition(Game).X, (float)e.GetPosition(Game).Y);
+            Game.setMousePos(mousePos);
+        }
+
+        private void GameMouseLeave(object sender, MouseEventArgs e)
+        {
+            Game.setMousePos(new Vector2(-1, -1));
+        }
     }
 }
