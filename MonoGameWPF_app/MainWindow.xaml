@@ -45,17 +45,17 @@
                         </Grid.RowDefinitions>
                         <Label Content="Map width: " Grid.Column="0" Grid.Row="0"></Label>
                         <Separator Opacity="0" Width="30" Grid.Column="1" Grid.Row="0"></Separator>
-                        <TextBox TextWrapping="NoWrap" FontSize="16" Width="60" PreviewTextInput="textBox1_PreviewTextInput" Grid.Column="2" Grid.Row="0"></TextBox>
+                        <TextBox TextWrapping="NoWrap" Text="10" FontSize="16" Width="60" PreviewTextInput="textBox1_PreviewTextInput" Grid.Column="2" Grid.Row="0" x:Name="MapWidthParam"></TextBox>
                         
                         <Separator Opacity="0" Height="15" Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1"></Separator>
                         
                         <Label Content="Map height: " Grid.Column="0" Grid.Row="2"></Label>
                         <Separator Opacity="0" Width="30" Grid.Column="1" Grid.Row="2"></Separator>
-                        <TextBox TextWrapping="NoWrap" FontSize="16" Width="60" PreviewTextInput="textBox1_PreviewTextInput" Grid.Column="2" Grid.Row="2"></TextBox>
+                        <TextBox TextWrapping="NoWrap" Text="10" FontSize="16" Width="60" PreviewTextInput="textBox2_PreviewTextInput" Grid.Column="2" Grid.Row="2" x:Name="MapHeightParam"></TextBox>
 
                         <Separator Opacity="0" Height="15" Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="3"></Separator>
 
-                        <Button Content="Change" Grid.Row="4" Grid.Column="1" Padding="5" x:Name="changeMapSizeBtn"></Button>
+                        <Button Content="Change" Cursor="Hand" Click="ChangeMapSizeBtn_OnClick" Grid.Row="4" Grid.Column="1" Padding="5" x:Name="changeMapSizeBtn"></Button>
                     </Grid>
                 </GroupBox>
                 <GroupBox Header="Buildings" Padding="5">
@@ -67,11 +67,11 @@
                             <ColumnDefinition Width="*"></ColumnDefinition>
                             <ColumnDefinition Width="auto"></ColumnDefinition>
                         </Grid.ColumnDefinitions>
-                        <Button Content="Base" Grid.Column="0" x:Name="BasePlaceBtn" Padding="20 5"/>
+                        <Button Content="Base" Cursor="Hand" Click="BasePlaceBtn_OnClick" Grid.Column="0" x:Name="BasePlaceBtn" Padding="20 5"/>
                         <Separator Grid.Column="1" Opacity="0"></Separator>
-                        <Button Content="Airport" Grid.Column="2" x:Name="AirportPlaceBtn" Padding="20 5"/>
+                        <Button Content="Airport" Cursor="Hand" Click="AirportPlaceBtn_OnClick" Grid.Column="2" x:Name="AirportPlaceBtn" Padding="20 5"/>
                         <Separator Grid.Column="3" Opacity="0"></Separator>
-                        <Button Content="Train Station" Grid.Column="4" x:Name="TrainStationBtn" Padding="20 5"/>
+                        <Button Content="Train Station" Cursor="Hand" Click="TrainStationBtn_OnClick" Grid.Column="4" x:Name="TrainStationBtn" Padding="20 5"/>
                     </Grid>
                 </GroupBox>
                 <GroupBox Header="Grounds" Padding="5">
@@ -81,9 +81,9 @@
                             <ColumnDefinition Width="*"></ColumnDefinition>
                             <ColumnDefinition Width="auto"></ColumnDefinition>
                         </Grid.ColumnDefinitions>
-                        <Button Content="Basic" Grid.Column="0" x:Name="BasicGroundBtn" Padding="20 5"/>
+                        <Button Content="Basic" Cursor="Hand" Click="BasicGroundBtn_OnClick" Grid.Column="0" x:Name="BasicGroundBtn" Padding="20 5"/>
                         <Separator Grid.Column="1" Opacity="0"></Separator>
-                        <Button Content="Water" Grid.Column="2" x:Name="WaterGroundBtn" Padding="20 5"/>
+                        <Button Content="Water" Cursor="Hand" Click="WaterGroundBtn_OnClick" Grid.Column="2" x:Name="WaterGroundBtn" Padding="20 5"/>
                     </Grid>
                 </GroupBox>
                 <GroupBox Header="Roads" Padding="5">
@@ -95,16 +95,17 @@
                             <ColumnDefinition Width="*"></ColumnDefinition>
                             <ColumnDefinition Width="auto"></ColumnDefinition>
                         </Grid.ColumnDefinitions>
-                        <Button Content="Car" Grid.Column="0" x:Name="CarRoadBtn" Padding="20 5"/>
+                        <Button Content="Car" Click="CarRoadBtn_OnClick" Cursor="Hand" Grid.Column="0" x:Name="CarRoadBtn" Padding="20 5"/>
                         <Separator Grid.Column="1" Opacity="0"></Separator>
-                        <Button Content="Railway" Grid.Column="2" x:Name="RailwayBtn" Padding="20 5"/>
+                        <Button Content="Railway" Click="RailwayBtn_OnClick" Cursor="Hand" Grid.Column="2" x:Name="RailwayBtn" Padding="20 5"/>
                         <Separator Grid.Column="3" Opacity="0"></Separator>
-                        <Button Content="Air road" Grid.Column="4" x:Name="AirWayBtn" Padding="20 5"/>
+                        <Button Content="Air road" Click="AirWayBtn_OnClick" Cursor="Hand" Grid.Column="4" x:Name="AirWayBtn" Padding="20 5"/>
                     </Grid>
                 </GroupBox>
             </StackPanel>
         </Border>
 
-        <monoGameControls:MonoGameContentControl MouseMove="GameMouseMove" MouseLeave="GameMouseLeave" Grid.Row="0" Grid.Column="1" x:Name="Game"/>
+        <monoGameControls:MonoGameContentControl MouseMove="GameMouseMove" MouseLeave="GameMouseLeave" MouseDown="Game_OnMouseDown"
+                                                 MouseUp="Game_OnMouseUp" Grid.Row="0" Grid.Column="1" x:Name="Game"/>
     </Grid>
 </Window>

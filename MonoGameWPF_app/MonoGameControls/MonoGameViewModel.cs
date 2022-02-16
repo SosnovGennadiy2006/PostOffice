@@ -3,6 +3,7 @@ using System.Windows;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using CellTypes = Routing.MainWindowViewModel.CellTypes;
 
 namespace Routing.MonoGameControls
 {
@@ -24,6 +25,9 @@ namespace Routing.MonoGameControls
         void setMapSize(Vector2 size);
         void setSize(Vector2 size);
         void setMousePos(Vector2 pos);
+        void changeMousePressState(bool state);
+        void changeHoveredCellType(CellTypes type);
+        void setSelectedRoadType(CellTypes type);
     }
 
     public class MonoGameViewModel : ViewModel, IMonoGameViewModel
@@ -61,5 +65,8 @@ namespace Routing.MonoGameControls
         public virtual void setMapSize(Vector2 size) { }
         public virtual void setSize(Vector2 size) { }
         public virtual void setMousePos(Vector2 pos) { }
+        public virtual void changeMousePressState(bool state) { }
+        public virtual void changeHoveredCellType(CellTypes type) { }
+        public virtual void setSelectedRoadType(CellTypes type) {}
     }
 }

@@ -21,8 +21,13 @@ namespace Routing
         private Vector2 thisSize;
         private Vector2 currentMousePos;
         private Vector2 hoveredCell = new Vector2(-1, -1);
+        private bool isMousePressed;
         private CellTypes hoveredCellType;
+        private CellTypes selectedRoadType;
         private static Texture2D _texture;
+
+        private Vector2 firstSelectedItemPos = new Vector2(-1, -1);
+        private Vector2 secondSelectedItemPos = new Vector2(-1, -1);
 
         Texture2D baseTexture;
         Texture2D trainStationTexture;
@@ -40,7 +45,8 @@ namespace Routing
             cell_ground_water,
             cell_road_car,
             cell_road_train,
-            cell_road_air
+            cell_road_air,
+            cell_focus
         }
 
         private static Texture2D GetTexture(SpriteBatch spriteBatch)
@@ -68,13 +74,13 @@ namespace Routing
             cellSize.Y = 30;
             setMapSize(new Vector2(10, 10));
 
-            hoveredCellType = CellTypes.cell_base;
+            hoveredCellType = CellTypes.cell_none;
         }
 
         public override void Update(GameTime gameTime)
         {
             isKeyDown();
-
+            isMouseDown();
         }
 
         public void isKeyDown()
@@ -113,6 +119,55 @@ namespace Routing
             }
         }
 
+        public void isMouseDown()
+        {
+            if (hoveredCellType != CellTypes.cell_none)
+            {
+                if (isMousePressed && hoveredCell.X != -1 && hoveredCell.Y != -1)
+                {
+                    setCellType(hoveredCell, hoveredCellType);
+                }
+            }
+
+            if (selectedRoadType != CellTypes.cell_none)
+            {
+                if (isMousePressed && hoveredCell.X != -1 && hoveredCell.Y != -1)
+                {
+                    bool flag = Map[(int) hoveredCell.X, (int) hoveredCell.Y, 1] == CellTypes.cell_airport &&
+                                selectedRoadType == CellTypes.cell_road_air;
+                    
+                    if (selectedRoadType == CellTypes.cell_road_car)
+                        flag = true;
+                    if (Map[(int) hoveredCell.X, (int) hoveredCell.Y, 1] == CellTypes.cell_train_station &&
+                        selectedRoadType == CellTypes.cell_road_train)
+                        flag = true;
+                    
+                    if (flag && Map[(int) hoveredCell.X, (int) hoveredCell.Y, 4] != CellTypes.cell_focus)
+                    {
+                        setCellType(hoveredCell, CellTypes.cell_focus);
+                        if (firstSelectedItemPos == new Vector2(-1, -1))
+                        {
+                            firstSelectedItemPos.X = hoveredCell.X;
+                            firstSelectedItemPos.Y = hoveredCell.Y;
+                        }else if (secondSelectedItemPos == new Vector2(-1, -1))
+                        {
+                            secondSelectedItemPos.X = hoveredCell.X;
+                            secondSelectedItemPos.Y = hoveredCell.Y;
+                        }
+                        else
+                        {
+                            Map[(int) firstSelectedItemPos.X, (int) firstSelectedItemPos.Y, 4] = CellTypes.cell_none;
+                            Map[(int) secondSelectedItemPos.X, (int) secondSelectedItemPos.Y, 4] = CellTypes.cell_none;
+                            firstSelectedItemPos.X = hoveredCell.X;
+                            firstSelectedItemPos.Y = hoveredCell.Y;
+                            secondSelectedItemPos.X = -1;
+                            secondSelectedItemPos.Y = -1;
+                        }
+                    }
+                }
+            }
+        }
+        
         public override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.White);
@@ -162,6 +217,7 @@ namespace Routing
                     DrawCell(new Vector2(i * cellSize.X + offsetPos.X, j * cellSize.Y + offsetPos.Y), Map[i, j, 1]);
                     DrawCell(new Vector2(i * cellSize.X + offsetPos.X, j * cellSize.Y + offsetPos.Y), Map[i, j, 2]);
                     DrawCell(new Vector2(i * cellSize.X + offsetPos.X, j * cellSize.Y + offsetPos.Y), Map[i, j, 3]);
+                    DrawCell(new Vector2(i * cellSize.X + offsetPos.X, j * cellSize.Y + offsetPos.Y), Map[i, j, 4]);
                 }
             }
         }
@@ -182,6 +238,19 @@ namespace Routing
                 case CellTypes.cell_ground_water:
                     _spriteBatch.Draw(GetTexture(_spriteBatch), pos, null, Color.Blue * opacity, 0f, new Vector2(0f, 0f), cellSize, SpriteEffects.None, 0);
                     break;
+                case CellTypes.cell_focus:
+                    DrawLine(_spriteBatch, new Vector2(pos.X, pos.Y + 1), cellSize.X * 5 / 12, 0, Color.Red * opacity, 2);
+                    DrawLine(_spriteBatch, new Vector2(pos.X, pos.Y + cellSize.Y - 2), cellSize.X * 5 / 12, 0, Color.Red * opacity, 2);
+                    
+                    DrawLine(_spriteBatch, new Vector2(pos.X + 1, pos.Y), (cellSize.Y - 2) * 5 / 12, (float)(Math.PI / 2), Color.Red * opacity, 2);
+                    DrawLine(_spriteBatch, new Vector2(pos.X + cellSize.X - 2, pos.Y), cellSize.Y * 5 / 12, (float)(Math.PI / 2), Color.Red * opacity, 2);
+                    
+                    DrawLine(_spriteBatch, new Vector2(pos.X + 1, pos.Y + cellSize.Y * 7 / 12), (cellSize.Y - 2) * 5 / 12, (float)(Math.PI / 2), Color.Red * opacity, 2);
+                    DrawLine(_spriteBatch, new Vector2(pos.X + cellSize.X - 2, pos.Y + cellSize.Y * 7 / 12), (cellSize.Y - 2) * 5 / 12, (float)(Math.PI / 2), Color.Red * opacity, 2);
+                    
+                    DrawLine(_spriteBatch, new Vector2(pos.X + cellSize.X * 7 / 12, pos.Y + 1), cellSize.X * 5 / 12, 0, Color.Red * opacity, 2);
+                    DrawLine(_spriteBatch, new Vector2(pos.X + cellSize.X * 7 / 12, pos.Y + cellSize.Y - 2), cellSize.X * 5 / 12, 0, Color.Red * opacity, 2);
+                    break;
                 case CellTypes.cell_ground_basic:
                 case CellTypes.cell_none:
                 default:
@@ -200,12 +269,42 @@ namespace Routing
             }
         }
 
+        public void setCellType(Vector2 pos, CellTypes type)
+        {
+            switch (type)
+            {
+                case CellTypes.cell_base:
+                    Map[(int) pos.X, (int) pos.Y, 0] = CellTypes.cell_ground_basic;
+                    Map[(int) pos.X, (int) pos.Y, 1] = CellTypes.cell_base;
+                    break;
+                case CellTypes.cell_train_station:
+                    Map[(int) pos.X, (int) pos.Y, 0] = CellTypes.cell_ground_basic;
+                    Map[(int) pos.X, (int) pos.Y, 1] = CellTypes.cell_train_station;
+                    break;
+                case CellTypes.cell_airport:
+                    Map[(int) pos.X, (int) pos.Y, 0] = CellTypes.cell_ground_basic;
+                    Map[(int) pos.X, (int) pos.Y, 1] = CellTypes.cell_airport;
+                    break;
+                case CellTypes.cell_ground_basic:
+                    Map[(int) pos.X, (int) pos.Y, 0] = CellTypes.cell_ground_basic;
+                    Map[(int) pos.X, (int) pos.Y, 1] = CellTypes.cell_none;
+                    break;
+                case CellTypes.cell_ground_water:
+                    Map[(int) pos.X, (int) pos.Y, 0] = CellTypes.cell_ground_water;
+                    Map[(int) pos.X, (int) pos.Y, 1] = CellTypes.cell_none;
+                    break;
+                case CellTypes.cell_focus:
+                    Map[(int) pos.X, (int) pos.Y, 4] = CellTypes.cell_focus;
+                    break;
+            }
+        }
+
         public override void setMapSize(Vector2 size)
         {
             mapSize.X = size.X;
             mapSize.Y = size.Y;
 
-            Map = new CellTypes[(int)mapSize.Y, (int)mapSize.X, 4];
+            Map = new CellTypes[(int)mapSize.Y, (int)mapSize.X, 5];
             for (int i = 0; i < mapSize.Y; i++)
             {
                 for (int j = 0; j < mapSize.X; j++)
@@ -214,16 +313,15 @@ namespace Routing
                     Map[i, j, 1] = CellTypes.cell_none;
                     Map[i, j, 2] = CellTypes.cell_none;
                     Map[i, j, 3] = CellTypes.cell_none;
+                    Map[i, j, 4] = CellTypes.cell_none;
                 }
             }
-
-            Map[0, 0, 1] = CellTypes.cell_airport;
         }
 
-        public override void setSize(Vector2 S)
+        public override void setSize(Vector2 size)
         {
-            thisSize.X = S.X;
-            thisSize.Y = S.Y;
+            thisSize.X = size.X;
+            thisSize.Y = size.Y;
 
             if (offsetPos.X + mapSize.X * cellSize.X > thisSize.X)
             {
@@ -266,6 +364,29 @@ namespace Routing
             {
                 hoveredCell = currentMousePos;
             }
+        }
+
+        public override void changeMousePressState(bool state)
+        {
+            isMousePressed = state;
+        }
+
+        public override void changeHoveredCellType(CellTypes type)
+        {
+            hoveredCellType = type;
+        }
+        
+        public override void setSelectedRoadType(CellTypes type)
+        {
+            selectedRoadType = type;
+            if ((int)firstSelectedItemPos.X != -1 && (int)firstSelectedItemPos.Y != -1)
+                Map[(int)firstSelectedItemPos.X, (int)firstSelectedItemPos.Y, 4] = CellTypes.cell_none;
+            if ((int)secondSelectedItemPos.X != -1 && (int)secondSelectedItemPos.Y != -1)
+                Map[(int)secondSelectedItemPos.X, (int)secondSelectedItemPos.Y, 4] = CellTypes.cell_none;
+            firstSelectedItemPos.X = -1;
+            firstSelectedItemPos.Y = -1;
+            secondSelectedItemPos.X = -1;
+            secondSelectedItemPos.Y = -1;
         }
     }
 }

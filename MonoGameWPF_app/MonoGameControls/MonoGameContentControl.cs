@@ -26,6 +26,7 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using CellTypes = Routing.MainWindowViewModel.CellTypes;
 
 namespace Routing.MonoGameControls
 {
@@ -324,6 +325,21 @@ namespace Routing.MonoGameControls
         public void setMousePos(Vector2 pos)
         {
             _viewModel.setMousePos(pos);
+        }
+
+        public void changeMousePressState(bool state)
+        {
+            _viewModel.changeMousePressState(state);
+        }
+
+        public void changeHoveredCellType(CellTypes type)
+        {
+            _viewModel.changeHoveredCellType(type);
+        }
+
+        public void setSelectedRoadType(CellTypes type)
+        {
+            _viewModel.setSelectedRoadType(type);
         }
     }
 }
