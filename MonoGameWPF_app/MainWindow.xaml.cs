@@ -22,56 +22,12 @@ namespace Routing
 
         private void textBox1_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
-            if (onlyNumeric(e.Text))
-            {
-                int n = Convert.ToInt32(MapWidthParam.Text + e.Text);
-                
-                if (n > 25)
-                {
-                    MapWidthParam.Text = "30";
-                    e.Handled = true;
-                    return;
-                }
-                if (n < 5)
-                {
-                    MapWidthParam.Text = "5";
-                    e.Handled = true;
-                    return;
-                }
-
-                e.Handled = false;
-            }
-            else
-            {
-                e.Handled = true;
-            }
+            e.Handled = !onlyNumeric(e.Text);
         }
         
         private void textBox2_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
-            if (onlyNumeric(e.Text))
-            {
-                int n = Convert.ToInt32(MapHeightParam.Text + e.Text);
-                
-                if (n > 25)
-                {
-                    MapHeightParam.Text = "30";
-                    e.Handled = true;
-                    return;
-                }
-                if (n < 5)
-                {
-                    MapHeightParam.Text = "5";
-                    e.Handled = true;
-                    return;
-                }
-
-                e.Handled = false;
-            }
-            else
-            {
-                e.Handled = true;
-            }
+            e.Handled = !onlyNumeric(e.Text);
         }
 
         private void GameMouseMove(object sender, MouseEventArgs e)
@@ -89,6 +45,23 @@ namespace Routing
         {
             if (MapWidthParam.Text != "" && MapHeightParam.Text != "")
             {
+                int n = Convert.ToInt32(MapWidthParam.Text);
+                int m = Convert.ToInt32(MapHeightParam.Text);
+                if (n > 30)
+                {
+                    MapWidthParam.Text = "30";
+                }else if (n < 5)
+                {
+                    MapWidthParam.Text = "5";
+                }
+                if (m > 30)
+                {
+                    MapHeightParam.Text = "30";
+                }
+                else if (m < 5)
+                {
+                    MapHeightParam.Text = "5";
+                }
                 Game.setMapSize(new Vector2(Convert.ToInt32(MapWidthParam.Text), Convert.ToInt32(MapHeightParam.Text)));
             }
             else
