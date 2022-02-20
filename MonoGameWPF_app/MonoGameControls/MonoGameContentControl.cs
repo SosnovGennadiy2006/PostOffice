@@ -26,7 +26,7 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using CellTypes = Routing.MainWindowViewModel.CellTypes;
+using CellTypes = Routing.logics.CellTypes;
 
 namespace Routing.MonoGameControls
 {

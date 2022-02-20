@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Input;
 using Microsoft.Xna.Framework;
-using CellTypes = Routing.MainWindowViewModel.CellTypes;
+using CellTypes = Routing.logics.CellTypes;
 
 namespace Routing
 {

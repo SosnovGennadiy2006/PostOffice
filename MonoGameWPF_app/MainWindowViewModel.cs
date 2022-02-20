@@ -6,8 +6,10 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Routing.MonoGameControls;
+using Routing.logics;
 using Keyboard = System.Windows.Input.Keyboard;
-using Mouse = System.Windows.Input.Mouse;
+using CellTypes = Routing.logics.CellTypes;
+using CellIndexes = Routing.logics.CellIndexes;
 
 namespace Routing
 {
@@ -17,7 +19,6 @@ namespace Routing
 
         private Vector2 offsetPos;
         private Vector2 cellSize;
-        private Vector2 mapSize;
         private Vector2 thisSize;
         private Vector2 currentMousePos;
         private Vector2 hoveredCell = new Vector2(-1, -1);
@@ -26,33 +27,15 @@ namespace Routing
         private CellTypes selectedRoadType;
         private static Texture2D _texture;
 
-        private List<Vector4> CarRoads = new List<Vector4> { };
-        private List<Vector4> TrainRoads = new List<Vector4> { };
-        private List<Vector4> AirRoads = new List<Vector4>{ };
+        public static Color waterColor = new Color(28, 163, 236);
 
         private Vector2 rememberedCell = new Vector2(-1, -1);
-        private Vector2 firstSelectedItemPos = new Vector2(-1, -1);
-        private Vector2 secondSelectedItemPos = new Vector2(-1, -1);
 
         Texture2D baseTexture;
         Texture2D trainStationTexture;
         Texture2D airportTexture;
 
-        private CellTypes[,,] Map;
-
-        public enum CellTypes
-        {
-            cell_none,
-            cell_base,
-            cell_train_station,
-            cell_airport,
-            cell_ground_basic,
-            cell_ground_water,
-            cell_road_car,
-            cell_road_train,
-            cell_road_air,
-            cell_focus
-        }
+        private Map _map = new Map(10, 10);
 
         private static Texture2D GetTexture(SpriteBatch spriteBatch)
         {
@@ -69,15 +52,14 @@ namespace Routing
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             Content.RootDirectory = "Content";
-            baseTexture = Content.Load<Texture2D>("Images/Circle");
-            trainStationTexture = Content.Load<Texture2D>("Images/Square");
-            airportTexture = Content.Load<Texture2D>("Images/Rhomb");
+            baseTexture = Content.Load<Texture2D>("Images/office");
+            trainStationTexture = Content.Load<Texture2D>("Images/trainStation");
+            airportTexture = Content.Load<Texture2D>("Images/airport");
 
             offsetPos.X = 0;
             offsetPos.Y = 0;
-            cellSize.X = 30;
-            cellSize.Y = 30;
-            setMapSize(new Vector2(10, 10));
+            cellSize.X = 32;
+            cellSize.Y = 32;
 
             hoveredCellType = CellTypes.cell_none;
         }
@@ -92,7 +74,7 @@ namespace Routing
         {
             if (Keyboard.IsKeyDown(Key.W) || Keyboard.IsKeyDown(Key.Up))
             {
-                if (this.offsetPos.Y > Math.Min(0, -mapSize.Y * cellSize.Y + thisSize.Y))
+                if (this.offsetPos.Y > Math.Min(0, _map.Height * cellSize.Y + thisSize.Y))
                 {
                     this.offsetPos.Y -= 2;
                     setHoveredCell();
@@ -100,7 +82,7 @@ namespace Routing
             }
             if (Keyboard.IsKeyDown(Key.D) || Keyboard.IsKeyDown(Key.Right))
             {
-                if (this.offsetPos.X < Math.Max(0, -mapSize.X * cellSize.X + thisSize.X))
+                if (this.offsetPos.X < Math.Max(0, -_map.Width * cellSize.X + thisSize.X))
                 {
                     this.offsetPos.X += 2;
                     setHoveredCell();
@@ -108,7 +90,7 @@ namespace Routing
             }
             if (Keyboard.IsKeyDown(Key.S) || Keyboard.IsKeyDown(Key.Down))
             {
-                if (this.offsetPos.Y < Math.Max(0, -mapSize.Y * cellSize.Y + thisSize.Y))
+                if (this.offsetPos.Y < Math.Max(0, -_map.Height * cellSize.Y + thisSize.Y))
                 {
                     this.offsetPos.Y += 2;
                     setHoveredCell();
@@ -116,7 +98,7 @@ namespace Routing
             }
             if (Keyboard.IsKeyDown(Key.A) || Keyboard.IsKeyDown(Key.Left))
             {
-                if (this.offsetPos.X > Math.Min(0, -mapSize.X * cellSize.X + thisSize.X))
+                if (this.offsetPos.X > Math.Min(0, -_map.Width * cellSize.X + thisSize.X))
                 {
                     this.offsetPos.X -= 2;
                     setHoveredCell();
@@ -138,26 +120,24 @@ namespace Routing
             {
                 if (isMousePressed && hoveredCell.X != -1 && hoveredCell.Y != -1)
                 {
-                    bool flag = Map[(int) hoveredCell.X, (int) hoveredCell.Y, 1] == CellTypes.cell_airport &&
-                                selectedRoadType == CellTypes.cell_road_air;
+                    bool flag = (_map[(int)hoveredCell.X, (int)hoveredCell.Y, (int)CellIndexes.building_type] == CellTypes.cell_airport &&
+                                selectedRoadType == CellTypes.cell_road_air);
                     
-                    if (selectedRoadType == CellTypes.cell_road_car && Map[(int)hoveredCell.X, (int)hoveredCell.Y, 1] != CellTypes.cell_none)
+                    if (selectedRoadType == CellTypes.cell_road_car && _map[(int)hoveredCell.X, (int)hoveredCell.Y, (int)CellIndexes.building_type] != CellTypes.cell_none)
                         flag = true;
-                    if (Map[(int) hoveredCell.X, (int) hoveredCell.Y, 1] == CellTypes.cell_train_station &&
+                    if (_map[(int)hoveredCell.X, (int)hoveredCell.Y, (int)CellIndexes.building_type] == CellTypes.cell_train_station &&
                         selectedRoadType == CellTypes.cell_road_train)
                         flag = true;
                     
-                    if (flag && Map[(int) hoveredCell.X, (int) hoveredCell.Y, 5] != CellTypes.cell_focus && rememberedCell != hoveredCell)
+                    if (flag && _map[(int)hoveredCell.X, (int)hoveredCell.Y, (int)CellIndexes.isFocus] != CellTypes.cell_focus && rememberedCell != hoveredCell)
                     {
                         setCellType(hoveredCell, CellTypes.cell_focus);
-                        if (firstSelectedItemPos == new Vector2(-1, -1))
+                        if (_map.firstSelectedPos == new Vector2(-1, -1))
                         {
-                            firstSelectedItemPos.X = hoveredCell.X;
-                            firstSelectedItemPos.Y = hoveredCell.Y;
-                        }else if (secondSelectedItemPos == new Vector2(-1, -1))
+                            _map.firstSelectedPos = hoveredCell;
+                        }else if (_map.secondSelectedPos == new Vector2(-1, -1))
                         {
-                            secondSelectedItemPos.X = hoveredCell.X;
-                            secondSelectedItemPos.Y = hoveredCell.Y;
+                            _map.secondSelectedPos = hoveredCell;
                             makeRoad();
                             rememberedCell = hoveredCell;
                         }
@@ -179,13 +159,13 @@ namespace Routing
 
         public void DrawGrid()
         {            
-            for (int i = 0; i < mapSize.X + 1; i++)
+            for (int i = 0; i < _map.Width + 1; i++)
             {
-                DrawLine(_spriteBatch, new Vector2(offsetPos.X + i * cellSize.X, offsetPos.Y), new Vector2(offsetPos.X + i * cellSize.X, mapSize.Y * cellSize.Y + offsetPos.Y), Color.LightGray);
+                DrawLine(_spriteBatch, new Vector2(offsetPos.X + i * cellSize.X, offsetPos.Y), new Vector2(offsetPos.X + i * cellSize.X, _map.Height * cellSize.Y + offsetPos.Y), Color.LightGray);
             }
-            for (int i = 0; i < mapSize.Y + 1; i++)
+            for (int i = 0; i < _map.Height + 1; i++)
             {
-                DrawLine(_spriteBatch, new Vector2(offsetPos.X, offsetPos.Y + i * cellSize.Y), new Vector2(mapSize.X * cellSize.X + offsetPos.X, offsetPos.Y + i * cellSize.Y), Color.LightGray);
+                DrawLine(_spriteBatch, new Vector2(offsetPos.X, offsetPos.Y + i * cellSize.Y), new Vector2(_map.Width * cellSize.X + offsetPos.X, offsetPos.Y + i * cellSize.Y), Color.LightGray);
             }
             
             DrawLine(_spriteBatch, new Vector2(0, 1), new Vector2((float)thisSize.X, 1), Color.Gray);
@@ -207,16 +187,16 @@ namespace Routing
 
         public void DrawMap()
         {
-            for (int i = 0; i < mapSize.X && i * cellSize.X + offsetPos.X < thisSize.X; i++)
+            for (int i = 0; i < _map.Width && i * cellSize.X + offsetPos.X < thisSize.X; i++)
             {
-                for (int j = 0; j < mapSize.Y && j * cellSize.Y + offsetPos.Y < thisSize.Y; j++)
+                for (int j = 0; j < _map.Height && j * cellSize.Y + offsetPos.Y < thisSize.Y; j++)
                 {
-                    DrawCell(new Vector2(i * cellSize.X + offsetPos.X, j * cellSize.Y + offsetPos.Y), Map[i, j, 0]);
-                    DrawCell(new Vector2(i * cellSize.X + offsetPos.X, j * cellSize.Y + offsetPos.Y), Map[i, j, 2]);
-                    DrawCell(new Vector2(i * cellSize.X + offsetPos.X, j * cellSize.Y + offsetPos.Y), Map[i, j, 3]);
-                    DrawCell(new Vector2(i * cellSize.X + offsetPos.X, j * cellSize.Y + offsetPos.Y), Map[i, j, 4]);
-                    DrawCell(new Vector2(i * cellSize.X + offsetPos.X, j * cellSize.Y + offsetPos.Y), Map[i, j, 1]);
-                    DrawCell(new Vector2(i * cellSize.X + offsetPos.X, j * cellSize.Y + offsetPos.Y), Map[i, j, 5]);
+                    DrawCell(new Vector2(i * cellSize.X + offsetPos.X, j * cellSize.Y + offsetPos.Y), _map[i, j, (int)CellIndexes.ground_type]);
+                    DrawCell(new Vector2(i * cellSize.X + offsetPos.X, j * cellSize.Y + offsetPos.Y), _map[i, j, (int)CellIndexes.isCarRoad]);
+                    DrawCell(new Vector2(i * cellSize.X + offsetPos.X, j * cellSize.Y + offsetPos.Y), _map[i, j, (int)CellIndexes.isRailway]);
+                    DrawCell(new Vector2(i * cellSize.X + offsetPos.X, j * cellSize.Y + offsetPos.Y), _map[i, j, (int)CellIndexes.isAirRoad]);
+                    DrawCell(new Vector2(i * cellSize.X + offsetPos.X, j * cellSize.Y + offsetPos.Y), _map[i, j, (int)CellIndexes.building_type]);
+                    DrawCell(new Vector2(i * cellSize.X + offsetPos.X, j * cellSize.Y + offsetPos.Y), _map[i, j, (int)CellIndexes.isFocus]);
                 }
             }
         }
@@ -235,7 +215,7 @@ namespace Routing
                     _spriteBatch.Draw(airportTexture, pos, null, Color.White * opacity);
                     break;
                 case CellTypes.cell_ground_water:
-                    _spriteBatch.Draw(GetTexture(_spriteBatch), pos, null, Color.Blue * opacity, 0f, new Vector2(0f, 0f), cellSize, SpriteEffects.None, 0);
+                    _spriteBatch.Draw(GetTexture(_spriteBatch), pos, null, waterColor * opacity, 0f, new Vector2(0f, 0f), cellSize, SpriteEffects.None, 0);
                     break;
                 case CellTypes.cell_road_air:
                 case CellTypes.cell_road_train:
@@ -273,25 +253,24 @@ namespace Routing
 
         public void DrawRoadCell(Vector2 pos, CellTypes roadType, float opacity = 1)
         {
-
             Vector2 cellPos = new Vector2((pos.X - offsetPos.X) / cellSize.X, (pos.Y - offsetPos.Y) / cellSize.Y);
             Vector2 point = new Vector2(cellSize.X / 2, cellSize.Y / 2);
             Color color = Color.Black;
-            int index = 0;
+            int index = (int)CellIndexes.ground_type;
 
             if (roadType == CellTypes.cell_road_car)
             {
-                index = 2;
+                index = (int)CellIndexes.isCarRoad;
                 color = Color.Black;
             }else if (roadType == CellTypes.cell_road_train)
             {
-                index = 3;
+                index = (int)CellIndexes.isRailway;
                 point.X -= 2;
                 point.Y -= 2;
                 color = Color.Orange;
             }else if (roadType == CellTypes.cell_road_air)
             {
-                index = 4;
+                index = (int)CellIndexes.isAirRoad;
                 point.X += 2;
                 point.Y += 2;
                 color = Color.Aqua;
@@ -299,28 +278,28 @@ namespace Routing
 
             if (cellPos.X > 0)
             {
-                if (Map[(int)cellPos.X - 1, (int)cellPos.Y, index] != CellTypes.cell_none)
+                if (_map[(int)cellPos.X - 1, (int)cellPos.Y, index] != CellTypes.cell_none)
                 {
                     DrawLine(_spriteBatch, new Vector2(pos.X, pos.Y + point.Y), new Vector2(pos.X + point.X, pos.Y + point.Y), color * opacity, 2);
                 }
             }
-            if (cellPos.X < mapSize.X - 1)
+            if (cellPos.X < _map.Width - 1)
             {
-                if (Map[(int)cellPos.X + 1, (int)cellPos.Y, index] != CellTypes.cell_none)
+                if (_map[(int)cellPos.X + 1, (int)cellPos.Y, index] != CellTypes.cell_none)
                 {
                     DrawLine(_spriteBatch, new Vector2(pos.X + cellSize.X, pos.Y + point.Y), new Vector2(pos.X + point.X, pos.Y + point.Y), color * opacity, 2);
                 }
             }
-            if (cellPos.Y < mapSize.Y - 1)
+            if (cellPos.Y < _map.Height - 1)
             {
-                if (Map[(int)cellPos.X, (int)cellPos.Y + 1, index] != CellTypes.cell_none)
+                if (_map[(int)cellPos.X, (int)cellPos.Y + 1, index] != CellTypes.cell_none)
                 {
                     DrawLine(_spriteBatch, new Vector2(pos.X + point.X, pos.Y + cellSize.Y), new Vector2(pos.X + point.X, pos.Y + point.Y), color * opacity, 2);
                 }
             }
             if (cellPos.Y > 0)
             {
-                if (Map[(int)cellPos.X, (int)cellPos.Y - 1, index] != CellTypes.cell_none)
+                if (_map[(int)cellPos.X, (int)cellPos.Y - 1, index] != CellTypes.cell_none)
                 {
                     DrawLine(_spriteBatch, new Vector2(pos.X + point.X, pos.Y), new Vector2(pos.X + point.X, pos.Y + point.Y), color * opacity, 2);
                 }
@@ -340,53 +319,10 @@ namespace Routing
 
         public void setCellType(Vector2 pos, CellTypes type)
         {
-            switch (type)
+            _map.setCellType((int)pos.X, (int)pos.Y, type);
+            if (type == CellTypes.cell_ground_basic || type == CellTypes.cell_ground_water)
             {
-                case CellTypes.cell_base:
-                    Map[(int) pos.X, (int) pos.Y, 0] = CellTypes.cell_ground_basic;
-                    Map[(int) pos.X, (int) pos.Y, 1] = CellTypes.cell_base;
-                    break;
-                case CellTypes.cell_train_station:
-                    Map[(int) pos.X, (int) pos.Y, 0] = CellTypes.cell_ground_basic;
-                    Map[(int) pos.X, (int) pos.Y, 1] = CellTypes.cell_train_station;
-                    break;
-                case CellTypes.cell_airport:
-                    Map[(int) pos.X, (int) pos.Y, 0] = CellTypes.cell_ground_basic;
-                    Map[(int) pos.X, (int) pos.Y, 1] = CellTypes.cell_airport;
-                    break;
-                case CellTypes.cell_ground_basic:
-                    Map[(int) pos.X, (int) pos.Y, 0] = CellTypes.cell_ground_basic;
-                    Map[(int) pos.X, (int) pos.Y, 1] = CellTypes.cell_none;
-                    DeleteRoads(pos);
-                    break;
-                case CellTypes.cell_ground_water:
-                    Map[(int)pos.X, (int)pos.Y, 0] = CellTypes.cell_ground_water;
-                    Map[(int)pos.X, (int)pos.Y, 1] = CellTypes.cell_none;
-                    DeleteRoads(pos);
-                    break;
-                case CellTypes.cell_focus:
-                    Map[(int) pos.X, (int) pos.Y, 5] = CellTypes.cell_focus;
-                    break;
-            }
-        }
-
-        public override void setMapSize(Vector2 size)
-        {
-            mapSize.X = size.X;
-            mapSize.Y = size.Y;
-
-            Map = new CellTypes[(int)mapSize.X, (int)mapSize.Y, 6];
-            for (int i = 0; i < mapSize.X; i++)
-            {
-                for (int j = 0; j < mapSize.Y; j++)
-                {
-                    Map[i, j, 0] = CellTypes.cell_ground_basic;
-                    Map[i, j, 1] = CellTypes.cell_none;
-                    Map[i, j, 2] = CellTypes.cell_none;
-                    Map[i, j, 3] = CellTypes.cell_none;
-                    Map[i, j, 4] = CellTypes.cell_none;
-                    Map[i, j, 5] = CellTypes.cell_none;
-                }
+                _map.DeleteRoads(pos);
             }
         }
 
@@ -395,19 +331,19 @@ namespace Routing
             thisSize.X = size.X;
             thisSize.Y = size.Y;
 
-            if (offsetPos.X + mapSize.X * cellSize.X > thisSize.X)
+            if (offsetPos.X + _map.Width * cellSize.X > thisSize.X)
             {
-                offsetPos.X = thisSize.X - mapSize.X * cellSize.X;
+                offsetPos.X = thisSize.X - _map.Width * cellSize.X;
             }
-            if (offsetPos.X < -mapSize.X * cellSize.X + thisSize.X)
+            if (offsetPos.X < -_map.Width * cellSize.X + thisSize.X)
             {
                 offsetPos.X = 0;
             }
-            if (offsetPos.Y + mapSize.Y * cellSize.Y > thisSize.Y)
+            if (offsetPos.Y + _map.Height * cellSize.Y > thisSize.Y)
             {
-                offsetPos.Y = thisSize.Y - mapSize.Y * cellSize.Y;
+                offsetPos.Y = thisSize.Y - _map.Height * cellSize.Y;
             }
-            if (offsetPos.Y < -mapSize.Y * cellSize.Y + thisSize.Y)
+            if (offsetPos.Y < -_map.Height * cellSize.Y + thisSize.Y)
             {
                 offsetPos.Y = 0;
             }
@@ -424,9 +360,9 @@ namespace Routing
             if (currentMousePos != new Vector2(-1, -1))
             {
                 Vector2 offsetMousePos = currentMousePos - offsetPos;
-                if (offsetMousePos.X >= 0 && offsetMousePos.X <= mapSize.X * cellSize.X && offsetMousePos.Y >= 0 && offsetMousePos.Y <= mapSize.Y * cellSize.Y)
+                if (offsetMousePos.X >= 0 && offsetMousePos.X <= _map.Width * cellSize.X && offsetMousePos.Y >= 0 && offsetMousePos.Y <= _map.Height * cellSize.Y)
                 {
-                    hoveredCell = new Vector2(Math.Min((int)offsetMousePos.X / (int)cellSize.X, mapSize.X - 1), Math.Min((int)offsetMousePos.Y / (int)cellSize.Y, mapSize.Y - 1));
+                    hoveredCell = new Vector2(Math.Min((int)offsetMousePos.X / (int)cellSize.X, _map.Width - 1), Math.Min((int)offsetMousePos.Y / (int)cellSize.Y, _map.Height - 1));
                 }
                 else
                 {
@@ -455,321 +391,28 @@ namespace Routing
         public override void setSelectedRoadType(CellTypes type)
         {
             selectedRoadType = type;
-            if ((int)firstSelectedItemPos.X != -1 && (int)firstSelectedItemPos.Y != -1)
-                Map[(int)firstSelectedItemPos.X, (int)firstSelectedItemPos.Y, 5] = CellTypes.cell_none;
-            if ((int)secondSelectedItemPos.X != -1 && (int)secondSelectedItemPos.Y != -1)
-                Map[(int)secondSelectedItemPos.X, (int)secondSelectedItemPos.Y, 5] = CellTypes.cell_none;
-            firstSelectedItemPos.X = -1;
-            firstSelectedItemPos.Y = -1;
-            secondSelectedItemPos.X = -1;
-            secondSelectedItemPos.Y = -1;
+            if ((int)_map.firstSelectedPos.X != -1 && (int)_map.firstSelectedPos.Y != -1)
+                _map[(int)_map.firstSelectedPos.X, (int)_map.firstSelectedPos.Y, (int)CellIndexes.isFocus] = CellTypes.cell_none;
+            if ((int)_map.secondSelectedPos.X != -1 && (int)_map.secondSelectedPos.Y != -1)
+                _map[(int)_map.secondSelectedPos.X, (int)_map.secondSelectedPos.Y, (int)CellIndexes.isFocus] = CellTypes.cell_none;
+            _map.firstSelectedPos = new Vector2(-1, -1);
+            _map.secondSelectedPos = new Vector2(-1, -1);
         }
     
         public void makeRoad()
         {
-            makeRoad(firstSelectedItemPos, secondSelectedItemPos, selectedRoadType);
-
-
-            Map[(int)firstSelectedItemPos.X, (int)firstSelectedItemPos.Y, 5] = CellTypes.cell_none;
-            Map[(int)secondSelectedItemPos.X, (int)secondSelectedItemPos.Y, 5] = CellTypes.cell_none;
-
-            firstSelectedItemPos.X = -1;
-            firstSelectedItemPos.Y = -1;
-            secondSelectedItemPos.X = -1;
-            secondSelectedItemPos.Y = -1;
-        }
-
-        public void makeRoad(Vector2 i1, Vector2 i2, CellTypes type)
-        {
-            if (type == CellTypes.cell_road_air)
+            if (_map.checkRoad(_map.firstSelectedPos, _map.secondSelectedPos, selectedRoadType))
             {
-                if (AirRoads.Contains(new Vector4(i1.X, i1.Y, i2.X, i2.Y)) || AirRoads.Contains(new Vector4(i2.X, i2.Y, i1.X, i1.Y)))
-                {
-                    return;
-                }
-            }else if (type == CellTypes.cell_road_car)
-            {
-                if (CarRoads.Contains(new Vector4(i1.X, i1.Y, i2.X, i2.Y)) || CarRoads.Contains(new Vector4(i2.X, i2.Y, i1.X, i1.Y)))
-                {
-                    return;
-                }
-            }
-            else if (type == CellTypes.cell_road_train)
-            {
-                if (TrainRoads.Contains(new Vector4(i1.X, i1.Y, i2.X, i2.Y)) || TrainRoads.Contains(new Vector4(i2.X, i2.Y, i1.X, i1.Y)))
-                {
-                    return;
-                }
-            }
-
-            if (type == CellTypes.cell_road_air)
-            {
-                Vector2 t;
-                if (i1.X > i2.X)
-                {
-                    t = i1;
-                    i1 = i2;
-                    i2 = t;
-                }
-                for (int i = (int)i1.X; i <= i2.X; i++)
-                {
-                    Map[i, (int)i1.Y, 4] = selectedRoadType;
-                }
-                if (i1.Y < i2.Y)
-                {
-                    for (int i = (int)i1.Y; i <= i2.Y; i++)
-                    {
-                        Map[(int)i2.X, i, 4] = type;
-                    }
-                }
-                else
-                {
-                    for (int i = (int)i2.Y; i <= i1.Y; i++)
-                    {
-                        Map[(int)i2.X, i, 4] = type;
-                    }
-                }
-                AirRoads.Add(new Vector4(i1.X, i1.Y, i2.X, i2.Y));
-            }else
-            {
-                int index = 3;
-                if (type == CellTypes.cell_road_car)
-                {
-                    index = 2;
-                }
-                List<Vector2> cells = findPath(i1, i2);
-                if (cells.Count != 0)
-                {
-                    for (int i = 0; i < cells.Count; i++)
-                    {
-                        Map[(int)cells[i].X, (int)cells[i].Y, index] = type;
-                    }
-                    if (type == CellTypes.cell_road_car)
-                        CarRoads.Add(new Vector4(i1.X, i1.Y, i2.X, i2.Y));
-                    else
-                        TrainRoads.Add(new Vector4(i1.X, i1.Y, i2.X, i2.Y));
-                }
-            }
-        }
-
-        public void RestoreRoad(Vector2 i1, Vector2 i2, CellTypes type)
-        {
-            if (type == CellTypes.cell_road_air)
-            {
-                Vector2 t;
-                if (i1.X > i2.X)
-                {
-                    t = i1;
-                    i1 = i2;
-                    i2 = t;
-                }
-                for (int i = (int)i1.X; i <= i2.X; i++)
-                {
-                    Map[i, (int)i1.Y, 4] = selectedRoadType;
-                }
-                if (i1.Y < i2.Y)
-                {
-                    for (int i = (int)i1.Y; i <= i2.Y; i++)
-                    {
-                        Map[(int)i2.X, i, 4] = type;
-                    }
-                }
-                else
-                {
-                    for (int i = (int)i2.Y; i <= i1.Y; i++)
-                    {
-                        Map[(int)i2.X, i, 4] = type;
-                    }
-                }
-            }
-            else
-            {
-                int index = 3;
-                if (type == CellTypes.cell_road_car)
-                {
-                    index = 2;
-                }
-                List<Vector2> cells = findPath(i1, i2);
-                if (cells.Count != 0)
-                {
-                    for (int i = 0; i < cells.Count; i++)
-                    {
-                        Map[(int)cells[i].X, (int)cells[i].Y, index] = type;
-                    }
-                }
-            }
-        }
-
-        public List<Vector2> findPath(Vector2 pos_start, Vector2 pos_end)
-        {
-            List<Vector2> path = new List<Vector2> { };
-
-            int[,] matrix = new int[(int)mapSize.X, (int)mapSize.Y];
-
-            for (int i = 0; i < (int)mapSize.X; i++)
-            {
-                for (int j = 0; j < (int)mapSize.Y; j++)
-                {
-                    if (Map[i, j, 0] == CellTypes.cell_ground_water)
-                    {
-                        matrix[i, j] = -1;
-                    }else
-                    {
-                        matrix[i, j] = 0;
-                    }
-                }
-            }
-
-            matrix[(int)pos_start.X, (int)pos_start.Y] = 1;
-
-            int k = 1;
-
-            bool flag = true;
-
-            while (matrix[(int)pos_end.X, (int)pos_end.Y] == 0 && flag)
-            {
-                flag = make_step(ref matrix, k);
-                k++;
-            }
-
-            Vector2 last_pos = pos_end;
-
-            if (flag)
-            {
-                while (k != 1)
-                {
-                    path.Add(last_pos);
-                    if (last_pos.X > 0 && matrix[(int)last_pos.X - 1, (int)last_pos.Y] == k - 1)
-                    {
-                        last_pos = new Vector2((int)last_pos.X - 1, (int)last_pos.Y);
-                        k--;
-                    }
-                    else if (last_pos.Y > 0 && matrix[(int)last_pos.X, (int)last_pos.Y - 1] == k - 1)
-                    {
-                        last_pos = new Vector2((int)last_pos.X, (int)last_pos.Y - 1);
-                        k--;
-                    }
-                    else if (last_pos.X < mapSize.X - 1 && matrix[(int)last_pos.X + 1, (int)last_pos.Y] == k - 1)
-                    {
-                        last_pos = new Vector2((int)last_pos.X + 1, (int)last_pos.Y);
-                        k--;
-                    }
-                    else if (last_pos.Y < mapSize.Y - 1 && matrix[(int)last_pos.X, (int)last_pos.Y + 1] == k - 1)
-                    {
-                        last_pos = new Vector2((int)last_pos.X, (int)last_pos.Y + 1);
-                        k--;
-                    }
-                }
-                path.Add(pos_start);
-            }
-
-            return path;
-        }
-
-        public bool make_step(ref int[,] matrix, int k)
-        {
-            bool flag = false;
-
-            for (int i = 0; i < mapSize.X; i++)
-            {
-                for (int j = 0; j < mapSize.Y; j++)
-                {
-                    if (matrix[i, j] == k)
-                    {
-                        if (i > 0 && matrix[i - 1, j] == 0)
-                        {
-                            matrix[i - 1, j] = k + 1;
-                            flag = true;
-                        }
-                        if (j > 0 && matrix[i, j - 1] == 0)
-                        {
-                            matrix[i, j - 1] = k + 1;
-                            flag = true;
-                        }
-                        if (i < mapSize.X - 1 && matrix[i + 1, j] == 0)
-                        {
-                            matrix[i + 1, j] = k + 1;
-                            flag = true;
-                        }
-                        if (j < mapSize.Y - 1 && matrix[i, j + 1] == 0)
-                        {
-                            matrix[i, j + 1] = k + 1;
-                            flag = true;
-                        }
-                    }
-                }
-            }
-
-            return flag;
-        }
-
-        public void DeleteRoads(Vector2 pos)
-        {
-            List<int> CarRoadsToDelete = new List<int> { };
-            List<int> TrainRoadsToDelete = new List<int> { };
-            List<int> AirRoadsToDelete = new List<int> { };
-
-            for (int i = 0; i < CarRoads.Count; i++)
-            {
-                if ((CarRoads[i].X == pos.X && CarRoads[i].Y == pos.Y) || (CarRoads[i].Z == pos.X && CarRoads[i].W == pos.Y))
-                {
-                    CarRoadsToDelete.Add(i);
-                }
-            }
-
-            for (int i = 0; i < TrainRoads.Count; i++)
-            {
-                if ((TrainRoads[i].X == pos.X && TrainRoads[i].Y == pos.Y) || (TrainRoads[i].Z == pos.X && TrainRoads[i].W == pos.Y))
-                {
-                    TrainRoadsToDelete.Add(i);
-                }
-            }
-
-            for (int i = 0; i < AirRoads.Count; i++)
-            {
-                if ((AirRoads[i].X == pos.X && AirRoads[i].Y == pos.Y) || (AirRoads[i].Z == pos.X && AirRoads[i].W == pos.Y))
-                {
-                    AirRoadsToDelete.Add(i);
-                }
-            }
-
-            for (int index = (int)CarRoadsToDelete.Count - 1; index >= 0; index--)
-            {
-                CarRoads.RemoveAt(CarRoadsToDelete[index]);
-            }
-            for (int index = (int)TrainRoadsToDelete.Count - 1; index >= 0; index--)
-            {
-                TrainRoads.RemoveAt(TrainRoadsToDelete[index]);
-            }
-            for (int index = (int)AirRoadsToDelete.Count - 1; index >= 0; index--)
-            {
-                AirRoads.RemoveAt(AirRoadsToDelete[index]);
-            }
-
-            for (int i = 0; i < mapSize.X; i++)
-            {
-                for (int j = 0; j < mapSize.Y; j++)
-                {
-                    Map[i, j, 2] = CellTypes.cell_none;
-                    Map[i, j, 3] = CellTypes.cell_none;
-                    Map[i, j, 4] = CellTypes.cell_none;
-                }
+                _map.makeRoad(_map.firstSelectedPos, _map.secondSelectedPos, selectedRoadType);
+                _map.addRoad(_map.firstSelectedPos, _map.secondSelectedPos, selectedRoadType);
             }
 
 
+            _map[(int)_map.firstSelectedPos.X, (int)_map.firstSelectedPos.Y, (int)CellIndexes.isFocus] = CellTypes.cell_none;
+            _map[(int)_map.secondSelectedPos.X, (int)_map.secondSelectedPos.Y, (int)CellIndexes.isFocus] = CellTypes.cell_none;
 
-            foreach (Vector4 road in CarRoads)
-            {
-                RestoreRoad(new Vector2(road.X, road.Y), new Vector2(road.Z, road.W), CellTypes.cell_road_car);
-            }
-            foreach (Vector4 road in TrainRoads)
-            {
-                RestoreRoad(new Vector2(road.X, road.Y), new Vector2(road.Z, road.W), CellTypes.cell_road_train);
-            }
-            foreach (Vector4 road in AirRoads)
-            {
-                RestoreRoad(new Vector2(road.X, road.Y), new Vector2(road.Z, road.W), CellTypes.cell_road_air);
-            }
+            _map.firstSelectedPos = new Vector2(-1, -1);
+            _map.secondSelectedPos = new Vector2(-1, -1);
         }
     }
 }
