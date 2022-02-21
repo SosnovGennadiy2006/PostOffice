@@ -1,4 +1,4 @@
-﻿namespace Routing.logics
+﻿namespace app.logics
 {
     public enum CellTypes
     {
@@ -22,5 +22,19 @@
         isRailway,
         isAirRoad,
         isFocus
+    }
+
+    public enum costEnum
+    {
+        car = 1,
+        train = 3,
+        airplane = 7
+    }
+
+    public enum timeEnum
+    {
+        car = 5,
+        train = 3,
+        airplane = 1
     }
 }

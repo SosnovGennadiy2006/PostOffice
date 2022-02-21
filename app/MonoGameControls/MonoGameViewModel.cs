@@ -3,9 +3,9 @@ using System.Windows;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using CellTypes = Routing.logics.CellTypes;
+using CellTypes = app.logics.CellTypes;
 
-namespace Routing.MonoGameControls
+namespace app.MonoGameControls
 {
     public interface IMonoGameViewModel : IDisposable
     {

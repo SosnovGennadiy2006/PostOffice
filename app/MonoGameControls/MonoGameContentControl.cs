@@ -26,9 +26,9 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using CellTypes = Routing.logics.CellTypes;
+using CellTypes = app.logics.CellTypes;
 
-namespace Routing.MonoGameControls
+namespace app.MonoGameControls
 {
     public sealed class MonoGameContentControl : ContentControl, IDisposable
     {

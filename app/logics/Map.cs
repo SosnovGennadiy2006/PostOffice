@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 
-namespace Routing.logics
+namespace app.logics
 {
     class Map
     {
@@ -11,9 +11,7 @@ namespace Routing.logics
         public Vector2 firstSelectedPos { get; set; }
         public Vector2 secondSelectedPos { get; set; }
 
-        public List<Vector4> CarRoads { get; private set; }
-        public List<Vector4> TrainRoads { get; private set; }
-        public List<Vector4> AirRoads { get; private set; }
+        public Graph _graph { get; private set; }
 
         private CellTypes[,,] _map;
 
@@ -25,11 +23,8 @@ namespace Routing.logics
 
         public Map(int w = 10, int h = 10)
         {
+            _graph = new Graph();
             resize_map(w, h);
-
-            CarRoads = new List<Vector4> { };
-            TrainRoads = new List<Vector4> { };
-            AirRoads = new List<Vector4> { };
         }
 
         public void resize_map(int w, int h)
@@ -82,8 +77,10 @@ namespace Routing.logics
             }
         }
 
-        public void makeRoad(Vector2 pos1, Vector2 pos2, CellTypes type)
+        public int makeRoad(Vector2 pos1, Vector2 pos2, CellTypes type)
         {
+            int dist = 0;
+
             if (type == CellTypes.cell_road_air)
             {
                 Vector2 t;
@@ -96,12 +93,14 @@ namespace Routing.logics
                 for (int i = (int)pos1.X; i <= pos2.X; i++)
                 {
                     _map[i, (int)pos1.Y, (int)CellIndexes.isAirRoad] = type;
+                    dist++;
                 }
                 if (pos1.Y < pos2.Y)
                 {
                     for (int i = (int)pos1.Y; i <= pos2.Y; i++)
                     {
                         _map[(int)pos2.X, i, (int)CellIndexes.isAirRoad] = type;
+                        dist++;
                     }
                 }
                 else
@@ -109,6 +108,7 @@ namespace Routing.logics
                     for (int i = (int)pos2.Y; i <= pos1.Y; i++)
                     {
                         _map[(int)pos2.X, i, (int)CellIndexes.isAirRoad] = type;
+                        dist++;
                     }
                 }
             }
@@ -125,56 +125,30 @@ namespace Routing.logics
                     for (int i = 0; i < cells.Count; i++)
                     {
                         _map[(int)cells[i].X, (int)cells[i].Y, index] = type;
+                        dist++;
                     }
                 }
             }
+
+            return dist;
+        }
+
+        public Vertex getVertex(Vector2 pos)
+        {
+            CellTypes type = _map[(int)pos.X, (int)pos.X, 1];
+            return new Vertex((int)pos.X, (int)pos.Y, type);
         }
 
         public void addRoad(Vector2 pos1, Vector2 pos2, CellTypes type)
         {
-            switch (type)
-            {
-                case CellTypes.cell_road_car:
-                    {
-                        CarRoads.Add(new Vector4(pos1.X, pos1.Y, pos2.X, pos2.Y));
-                        break;
-                    }
-                case CellTypes.cell_road_train:
-                    {
-                        TrainRoads.Add(new Vector4(pos1.X, pos1.Y, pos2.X, pos2.Y));
-                        break;
-                    }
-                case CellTypes.cell_road_air:
-                    {
-                        AirRoads.Add(new Vector4(pos1.X, pos1.Y, pos2.X, pos2.Y));
-                        break;
-                    }
-            }
+            _graph.addRoad(getVertex(pos1), getVertex(pos2), type);
+            _graph.setRoadDistance(getVertex(pos1), getVertex(pos2), type, makeRoad(pos1, pos2, type));
         }
 
         public bool checkRoad(Vector2 pos1, Vector2 pos2, CellTypes type)
         {
-            if (type == CellTypes.cell_road_air)
-            {
-                if (AirRoads.Contains(new Vector4(pos1.X, pos1.Y, pos2.X, pos2.Y)) || AirRoads.Contains(new Vector4(pos2.X, pos2.Y, pos1.X, pos1.Y)))
-                {
-                    return false;
-                }
-            }
-            else if (type == CellTypes.cell_road_car)
-            {
-                if (CarRoads.Contains(new Vector4(pos1.X, pos1.Y, pos2.X, pos2.Y)) || CarRoads.Contains(new Vector4(pos2.X, pos2.Y, pos1.X, pos1.Y)))
-                {
-                    return false;
-                }
-            }
-            else if (type == CellTypes.cell_road_train)
-            {
-                if (TrainRoads.Contains(new Vector4(pos1.X, pos1.Y, pos2.X, pos2.Y)) || TrainRoads.Contains(new Vector4(pos2.X, pos2.Y, pos1.X, pos1.Y)))
-                {
-                    return false;
-                }
-            }
+            if (_graph.containsRoad(getVertex(pos1), getVertex(pos2), type))
+                return false;
 
             return true;
         }
@@ -285,60 +259,15 @@ namespace Routing.logics
 
         public void DeleteRoads(Vector2 pos)
         {
-            List<int> CarRoadsToDelete = new List<int> { };
-            List<int> TrainRoadsToDelete = new List<int> { };
-            List<int> AirRoadsToDelete = new List<int> { };
-
-            for (int i = 0; i < CarRoads.Count; i++)
-            {
-                if ((CarRoads[i].X == pos.X && CarRoads[i].Y == pos.Y) || (CarRoads[i].Z == pos.X && CarRoads[i].W == pos.Y))
-                {
-                    CarRoadsToDelete.Add(i);
-                }
-            }
-
-            for (int i = 0; i < TrainRoads.Count; i++)
-            {
-                if ((TrainRoads[i].X == pos.X && TrainRoads[i].Y == pos.Y) || (TrainRoads[i].Z == pos.X && TrainRoads[i].W == pos.Y))
-                {
-                    TrainRoadsToDelete.Add(i);
-                }
-            }
-
-            for (int i = 0; i < AirRoads.Count; i++)
-            {
-                if ((AirRoads[i].X == pos.X && AirRoads[i].Y == pos.Y) || (AirRoads[i].Z == pos.X && AirRoads[i].W == pos.Y))
-                {
-                    AirRoadsToDelete.Add(i);
-                }
-            }
-
-            for (int index = (int)CarRoadsToDelete.Count - 1; index >= 0; index--)
-            {
-                CarRoads.RemoveAt(CarRoadsToDelete[index]);
-            }
-            for (int index = (int)TrainRoadsToDelete.Count - 1; index >= 0; index--)
-            {
-                TrainRoads.RemoveAt(TrainRoadsToDelete[index]);
-            }
-            for (int index = (int)AirRoadsToDelete.Count - 1; index >= 0; index--)
-            {
-                AirRoads.RemoveAt(AirRoadsToDelete[index]);
-            }
+            _graph.deleteRoads(getVertex(pos));
 
             clearRoads();
 
-            foreach (Vector4 road in CarRoads.ToArray())
+            foreach (Road _road in _graph.roads)
             {
-                makeRoad(new Vector2(road.X, road.Y), new Vector2(road.Z, road.W), CellTypes.cell_road_car);
-            }
-            foreach (Vector4 road in TrainRoads.ToArray())
-            {
-                makeRoad(new Vector2(road.X, road.Y), new Vector2(road.Z, road.W), CellTypes.cell_road_train);
-            }
-            foreach (Vector4 road in AirRoads.ToArray())
-            {
-                makeRoad(new Vector2(road.X, road.Y), new Vector2(road.Z, road.W), CellTypes.cell_road_air);
+                _graph.setRoadDistance(_road.first, _road.second, _road.type,
+                    makeRoad(new Vector2(_road.first.X, _road.first.Y),
+                    new Vector2(_road.second.X, _road.second.Y), _road.type));
             }
         }
 

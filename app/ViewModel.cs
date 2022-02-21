@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace Routing
+namespace app
 {
     public class ViewModel : INotifyPropertyChanged
     {

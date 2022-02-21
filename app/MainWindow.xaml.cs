@@ -3,9 +3,9 @@ using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Input;
 using Microsoft.Xna.Framework;
-using CellTypes = Routing.logics.CellTypes;
+using CellTypes = app.logics.CellTypes;
 
-namespace Routing
+namespace app
 {
     public partial class MainWindow : Window
     {

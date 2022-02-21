@@ -5,13 +5,13 @@ using System.Windows.Input;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Routing.MonoGameControls;
-using Routing.logics;
+using app.MonoGameControls;
+using app.logics;
 using Keyboard = System.Windows.Input.Keyboard;
-using CellTypes = Routing.logics.CellTypes;
-using CellIndexes = Routing.logics.CellIndexes;
+using CellTypes = app.logics.CellTypes;
+using CellIndexes = app.logics.CellIndexes;
 
-namespace Routing
+namespace app
 {
     public class MainWindowViewModel : MonoGameViewModel
     {
@@ -403,7 +403,6 @@ namespace Routing
         {
             if (_map.checkRoad(_map.firstSelectedPos, _map.secondSelectedPos, selectedRoadType))
             {
-                _map.makeRoad(_map.firstSelectedPos, _map.secondSelectedPos, selectedRoadType);
                 _map.addRoad(_map.firstSelectedPos, _map.secondSelectedPos, selectedRoadType);
             }
 

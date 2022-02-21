@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Routing.MonoGameControls
+namespace app.MonoGameControls
 {
     public class MonoGameServiceProvider : IServiceProvider
     {
