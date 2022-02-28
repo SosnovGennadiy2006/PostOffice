@@ -18,6 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
@@ -26,6 +27,7 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using app.logics;
 using CellTypes = app.logics.CellTypes;
 
 namespace app.MonoGameControls
@@ -42,6 +44,14 @@ namespace app.MonoGameControls
         private SharpDX.Direct3D9.Texture _renderTargetD3D9;
         private bool _isFirstLoad = true;
         private bool _isInitialized;
+
+        public static readonly RoutedEvent SelectEvent = EventManager.RegisterRoutedEvent(
+            "Select", RoutingStrategy.Bubble, typeof(RoutedSelectEventHandler), typeof(MonoGameContentControl));
+        public event RoutedSelectEventHandler Select
+        {
+            add { AddHandler(SelectEvent, value); }
+            remove { RemoveHandler(SelectEvent, value); }
+        }
 
         public MonoGameContentControl()
         {
@@ -134,6 +144,10 @@ namespace app.MonoGameControls
             CompositionTarget.Rendering += OnRender;
             _stopwatch.Start();
             _isInitialized = true;
+
+
+            if (_viewModel != null)
+                _viewModel.SelectReached += _viewModel_SelectReached;
         }
 
         protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
@@ -322,6 +336,11 @@ namespace app.MonoGameControls
             _viewModel.setMapSize(size);
         }
 
+        public void clearWholeMap()
+        {
+            _viewModel.clearAll();
+        }
+
         public void setMousePos(Vector2 pos)
         {
             _viewModel.setMousePos(pos);
@@ -340,6 +359,27 @@ namespace app.MonoGameControls
         public void setSelectedRoadType(CellTypes type)
         {
             _viewModel.setSelectedRoadType(type);
+        }
+
+        public void setOperationState(bool state)
+        {
+            _viewModel.setOperationState(state);
+        }
+
+        private void RaiseSelectEvent(Vector2 pos)
+        {
+            RoutedMapSelectedEventArgs newEventArgs = new RoutedMapSelectedEventArgs(SelectEvent, pos);
+            RaiseEvent(newEventArgs);
+        }
+
+        private void _viewModel_SelectReached(object sender, MapSelectedEventArgs e)
+        {
+            RaiseSelectEvent(e.Pos);
+        }
+
+        public Tuple<int, List<Vector2>> getPath(Vector2 start, Vector2 end)
+        {
+            return _viewModel.getPath(start, end);
         }
     }
 }

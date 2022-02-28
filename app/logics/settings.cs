@@ -1,5 +1,28 @@
-﻿namespace app.logics
+﻿using System;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Interop;
+using System.Windows.Media;
+using Microsoft.Xna.Framework;
+
+namespace app.logics
 {
+    public delegate void SelectEventHandler(object sender, MapSelectedEventArgs e);
+    public delegate void RoutedSelectEventHandler(object sender, RoutedMapSelectedEventArgs e);
+
+    public static class CellSize
+    {
+        public static int X = 32;
+        public static int Y = 32;
+
+        public static Vector2 toVector()
+        {
+            return new Vector2(X, Y);
+        }
+    }
+
     public enum CellTypes
     {
         cell_none,
@@ -14,14 +37,14 @@
         cell_focus
     }
 
-    public enum CellIndexes
+    public static class CellIndexes
     {
-        ground_type = 0,
-        building_type,
-        isCarRoad,
-        isRailway,
-        isAirRoad,
-        isFocus
+        public static int ground_type = 0;
+        public static int building_type = 1;
+        public static int isCarRoad = 2;
+        public static int isRailway = 3;
+        public static int isAirRoad = 4;
+        public static int isFocus = 5;
     }
 
     public enum costEnum
@@ -36,5 +59,42 @@
         car = 5,
         train = 3,
         airplane = 1
+    }
+
+    public enum selectPointTypeEnum
+    {
+        None,
+        Start,
+        End
+    }
+
+    public class MapSelectedEventArgs : EventArgs
+    {
+        private readonly Vector2 postOfficePos;
+
+        public MapSelectedEventArgs(Vector2 postOfficePos)
+        {
+            this.postOfficePos = postOfficePos;
+        }
+
+        public Vector2 Pos
+        {
+            get { return postOfficePos; }
+        }
+    }
+
+    public class RoutedMapSelectedEventArgs : RoutedEventArgs
+    {
+        private readonly Vector2 postOfficePos;
+
+        public RoutedMapSelectedEventArgs(RoutedEvent e, Vector2 postOfficePos) : base(e)
+        {
+            this.postOfficePos = postOfficePos;
+        }
+
+        public Vector2 Pos
+        {
+            get { return postOfficePos; }
+        }
     }
 }

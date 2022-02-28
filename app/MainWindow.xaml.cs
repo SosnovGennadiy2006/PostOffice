@@ -1,14 +1,20 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Input;
 using Microsoft.Xna.Framework;
+using app.logics;
+using app.widgets;
 using CellTypes = app.logics.CellTypes;
+using selectPointTypeEnum = app.logics.selectPointTypeEnum;
 
 namespace app
 {
     public partial class MainWindow : Window
     {
+        selectPointTypeEnum selectType;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -20,16 +26,11 @@ namespace app
             return !regex.IsMatch(text);
         }
 
-        private void textBox1_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        private void textBoxPreviewTextInput(object sender, TextCompositionEventArgs e)
         {
             e.Handled = !onlyNumeric(e.Text);
         }
         
-        private void textBox2_PreviewTextInput(object sender, TextCompositionEventArgs e)
-        {
-            e.Handled = !onlyNumeric(e.Text);
-        }
-
         private void GameMouseMove(object sender, MouseEventArgs e)
         {
             Vector2 mousePos = new Vector2((float)e.GetPosition(Game).X, (float)e.GetPosition(Game).Y);
@@ -85,47 +86,126 @@ namespace app
         private void BasicGroundBtn_OnClick(object sender, RoutedEventArgs e)
         {
             Game.changeHoveredCellType(CellTypes.cell_ground_basic);
+            Game.setSelectedRoadType(CellTypes.cell_none);
+            Game.setOperationState(false);
+            selectType = selectPointTypeEnum.None;
         }
 
         private void WaterGroundBtn_OnClick(object sender, RoutedEventArgs e)
         {
             Game.changeHoveredCellType(CellTypes.cell_ground_water);
+            Game.setSelectedRoadType(CellTypes.cell_none);
+            Game.setOperationState(false);
+            selectType = selectPointTypeEnum.None;
         }
 
         private void BasePlaceBtn_OnClick(object sender, RoutedEventArgs e)
         {
             Game.changeHoveredCellType(CellTypes.cell_base);
             Game.setSelectedRoadType(CellTypes.cell_none);
+            Game.setOperationState(false);
+            selectType = selectPointTypeEnum.None;
         }
 
         private void AirportPlaceBtn_OnClick(object sender, RoutedEventArgs e)
         {
             Game.changeHoveredCellType(CellTypes.cell_airport);
             Game.setSelectedRoadType(CellTypes.cell_none);
+            Game.setOperationState(false);
+            selectType = selectPointTypeEnum.None;
         }
 
         private void TrainStationBtn_OnClick(object sender, RoutedEventArgs e)
         {
             Game.changeHoveredCellType(CellTypes.cell_train_station);
             Game.setSelectedRoadType(CellTypes.cell_none);
+            Game.setOperationState(false);
+            selectType = selectPointTypeEnum.None;
         }
 
         private void CarRoadBtn_OnClick(object sender, RoutedEventArgs e)
         {
             Game.changeHoveredCellType(CellTypes.cell_none);
             Game.setSelectedRoadType(CellTypes.cell_road_car);
+            Game.setOperationState(false);
+            selectType = selectPointTypeEnum.None;
         }
 
         private void RailwayBtn_OnClick(object sender, RoutedEventArgs e)
         {
             Game.changeHoveredCellType(CellTypes.cell_none);
             Game.setSelectedRoadType(CellTypes.cell_road_train);
+            Game.setOperationState(false);
+            selectType = selectPointTypeEnum.None;
         }
 
         private void AirWayBtn_OnClick(object sender, RoutedEventArgs e)
         {
             Game.changeHoveredCellType(CellTypes.cell_none);
             Game.setSelectedRoadType(CellTypes.cell_road_air);
+            Game.setOperationState(false);
+            selectType = selectPointTypeEnum.None;
+        }
+
+        private void SelectEndPoint_Btn_Click(object sender, RoutedEventArgs e)
+        {
+            Game.changeHoveredCellType(CellTypes.cell_none);
+            Game.setSelectedRoadType(CellTypes.cell_none);
+            Game.setOperationState(true);
+            selectType = selectPointTypeEnum.End;
+        }
+
+        private void SelectStartPoint_Btn_Click(object sender, RoutedEventArgs e)
+        {
+            Game.changeHoveredCellType(CellTypes.cell_none);
+            Game.setSelectedRoadType(CellTypes.cell_none);
+            Game.setOperationState(true);
+            selectType = selectPointTypeEnum.Start;
+        }
+
+        private void Game_Select(object sender, RoutedMapSelectedEventArgs e)
+        {
+            if (selectType == selectPointTypeEnum.Start)
+            {
+                PointStart_X.Text = Convert.ToString(e.Pos.X + 1);
+                PointStart_Y.Text = Convert.ToString(e.Pos.Y + 1);
+
+                Game.changeHoveredCellType(CellTypes.cell_none);
+                Game.setSelectedRoadType(CellTypes.cell_none);
+                Game.setOperationState(false);
+                selectType = selectPointTypeEnum.None;
+            }
+            else if (selectType == selectPointTypeEnum.End)
+            {
+                PointEnd_X.Text = Convert.ToString(e.Pos.X + 1);
+                PointEnd_Y.Text = Convert.ToString(e.Pos.Y + 1);
+
+                Game.changeHoveredCellType(CellTypes.cell_none);
+                Game.setSelectedRoadType(CellTypes.cell_none);
+                Game.setOperationState(false);
+                selectType = selectPointTypeEnum.None;
+            }
+        }
+
+        private void ClearMapBtn_Click(object sender, RoutedEventArgs e)
+        {
+            Game.clearWholeMap();
+        }
+
+        private void getPathBtn_Click(object sender, RoutedEventArgs e)
+        {
+            if (PointStart_X.Text != "" && PointStart_Y.Text != "" && PointEnd_X.Text != "" && PointEnd_Y.Text != "")
+            {
+                Vector2 StartPos = new Vector2(Convert.ToInt32(PointStart_X.Text) - 1, Convert.ToInt32(PointStart_Y.Text) - 1);
+                Vector2 EndPos = new Vector2(Convert.ToInt32(PointEnd_X.Text) - 1, Convert.ToInt32(PointEnd_Y.Text) - 1);
+
+                Tuple<int, List<Vector2>> path = Game.getPath(StartPos, EndPos);
+
+                InfoWindow window = new InfoWindow(ref path);
+                window.Activate();
+            }
+            //Vector2 pointStartPos = new Vector2(PointStart_X.Text)
+            //InfoWindow window = new InfoWindow(Game.getPath())
         }
     }
 }

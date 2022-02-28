@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Windows;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using app.logics;
 using CellTypes = app.logics.CellTypes;
 
 namespace app.MonoGameControls
@@ -23,15 +25,24 @@ namespace app.MonoGameControls
         void SizeChanged(object sender, SizeChangedEventArgs args);
 
         void setMapSize(Vector2 size);
+        void clearAll();
         void setSize(Vector2 size);
         void setMousePos(Vector2 pos);
         void changeMousePressState(bool state);
         void changeHoveredCellType(CellTypes type);
         void setSelectedRoadType(CellTypes type);
+        void setOperationState(bool state);
+
+        Tuple<int, List<Vector2>> getPath(Vector2 start, Vector2 end);
+
+        event SelectEventHandler SelectReached;
+        void OnSelectReached(MapSelectedEventArgs e);
     }
 
     public class MonoGameViewModel : ViewModel, IMonoGameViewModel
     {
+        public event SelectEventHandler SelectReached;
+
         public MonoGameViewModel()
         {
         }
@@ -63,10 +74,21 @@ namespace app.MonoGameControls
         public virtual void SizeChanged(object sender, SizeChangedEventArgs args) { }
 
         public virtual void setMapSize(Vector2 size) { }
+        public virtual void clearAll() { }
         public virtual void setSize(Vector2 size) { }
         public virtual void setMousePos(Vector2 pos) { }
         public virtual void changeMousePressState(bool state) { }
         public virtual void changeHoveredCellType(CellTypes type) { }
-        public virtual void setSelectedRoadType(CellTypes type) {}
+        public virtual void setSelectedRoadType(CellTypes type) { }
+        public virtual void setOperationState(bool state) { }
+
+
+        public virtual Tuple<int, List<Vector2>> getPath(Vector2 start, Vector2 end) { return null; }
+
+        public virtual void OnSelectReached(MapSelectedEventArgs e)
+        {
+            SelectEventHandler handler = SelectReached;
+            handler?.Invoke(this, e);
+        }
     }
 }

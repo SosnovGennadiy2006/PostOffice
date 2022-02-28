@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System;
 using Microsoft.Xna.Framework;
 
 namespace app.logics
@@ -11,7 +12,19 @@ namespace app.logics
         public Vector2 firstSelectedPos { get; set; }
         public Vector2 secondSelectedPos { get; set; }
 
-        public Graph _graph { get; private set; }
+        private Graph _graph;
+
+        public Graph graph
+        {
+            get
+            {
+                return _graph;
+            }
+            private set
+            {
+                _graph = value;
+            }
+        }
 
         private CellTypes[,,] _map;
 
@@ -37,12 +50,12 @@ namespace app.logics
             {
                 for (int j = 0; j < Height; j++)
                 {
-                    _map[i, j, (int)CellIndexes.ground_type] = CellTypes.cell_ground_basic;
-                    _map[i, j, (int)CellIndexes.building_type] = CellTypes.cell_none;
-                    _map[i, j, (int)CellIndexes.isCarRoad] = CellTypes.cell_none;
-                    _map[i, j, (int)CellIndexes.isRailway] = CellTypes.cell_none;
-                    _map[i, j, (int)CellIndexes.isAirRoad] = CellTypes.cell_none;
-                    _map[i, j, (int)CellIndexes.isFocus] = CellTypes.cell_none;
+                    _map[i, j, CellIndexes.ground_type] = CellTypes.cell_ground_basic;
+                    _map[i, j, CellIndexes.building_type] = CellTypes.cell_none;
+                    _map[i, j, CellIndexes.isCarRoad] = CellTypes.cell_none;
+                    _map[i, j, CellIndexes.isRailway] = CellTypes.cell_none;
+                    _map[i, j, CellIndexes.isAirRoad] = CellTypes.cell_none;
+                    _map[i, j, CellIndexes.isFocus] = CellTypes.cell_none;
                 }
             }
         }
@@ -52,27 +65,30 @@ namespace app.logics
             switch (type)
             {
                 case CellTypes.cell_base:
-                    _map[x, y, (int)CellIndexes.ground_type] = CellTypes.cell_ground_basic;
-                    _map[x, y, (int)CellIndexes.building_type] = CellTypes.cell_base;
+                    _map[x, y, CellIndexes.ground_type] = CellTypes.cell_ground_basic;
+                    _map[x, y, CellIndexes.building_type] = CellTypes.cell_base;
+                    _graph.addVertex(new Vertex(x, y, CellTypes.cell_road_car));
                     break;
                 case CellTypes.cell_train_station:
-                    _map[x, y, (int)CellIndexes.ground_type] = CellTypes.cell_ground_basic;
-                    _map[x, y, (int)CellIndexes.building_type] = CellTypes.cell_train_station;
+                    _map[x, y, CellIndexes.ground_type] = CellTypes.cell_ground_basic;
+                    _map[x, y, CellIndexes.building_type] = CellTypes.cell_train_station;
+                    _graph.addVertex(new Vertex(x, y, CellTypes.cell_road_train));
                     break;
                 case CellTypes.cell_airport:
-                    _map[x, y, (int)CellIndexes.ground_type] = CellTypes.cell_ground_basic;
-                    _map[x, y, (int)CellIndexes.building_type] = CellTypes.cell_airport;
+                    _map[x, y, CellIndexes.ground_type] = CellTypes.cell_ground_basic;
+                    _map[x, y, CellIndexes.building_type] = CellTypes.cell_airport;
+                    _graph.addVertex(new Vertex(x, y, CellTypes.cell_road_air));
                     break;
                 case CellTypes.cell_ground_basic:
-                    _map[x, y, (int)CellIndexes.ground_type] = CellTypes.cell_ground_basic;
-                    _map[x, y, (int)CellIndexes.building_type] = CellTypes.cell_none;
+                    _map[x, y, CellIndexes.ground_type] = CellTypes.cell_ground_basic;
+                    _map[x, y, CellIndexes.building_type] = CellTypes.cell_none;
                     break;
                 case CellTypes.cell_ground_water:
-                    _map[x, y, (int)CellIndexes.ground_type] = CellTypes.cell_ground_water;
-                    _map[x, y, (int)CellIndexes.building_type] = CellTypes.cell_none;
+                    _map[x, y, CellIndexes.ground_type] = CellTypes.cell_ground_water;
+                    _map[x, y, CellIndexes.building_type] = CellTypes.cell_none;
                     break;
                 case CellTypes.cell_focus:
-                    _map[x, y, (int)CellIndexes.isFocus] = CellTypes.cell_focus;
+                    _map[x, y, CellIndexes.isFocus] = CellTypes.cell_focus;
                     break;
             }
         }
@@ -92,14 +108,14 @@ namespace app.logics
                 }
                 for (int i = (int)pos1.X; i <= pos2.X; i++)
                 {
-                    _map[i, (int)pos1.Y, (int)CellIndexes.isAirRoad] = type;
+                    _map[i, (int)pos1.Y, CellIndexes.isAirRoad] = type;
                     dist++;
                 }
                 if (pos1.Y < pos2.Y)
                 {
                     for (int i = (int)pos1.Y; i <= pos2.Y; i++)
                     {
-                        _map[(int)pos2.X, i, (int)CellIndexes.isAirRoad] = type;
+                        _map[(int)pos2.X, i, CellIndexes.isAirRoad] = type;
                         dist++;
                     }
                 }
@@ -107,26 +123,23 @@ namespace app.logics
                 {
                     for (int i = (int)pos2.Y; i <= pos1.Y; i++)
                     {
-                        _map[(int)pos2.X, i, (int)CellIndexes.isAirRoad] = type;
+                        _map[(int)pos2.X, i, CellIndexes.isAirRoad] = type;
                         dist++;
                     }
                 }
             }
             else
             {
-                int index = (int)CellIndexes.isRailway;
+                int index = CellIndexes.isRailway;
                 if (type == CellTypes.cell_road_car)
                 {
-                    index = (int)CellIndexes.isCarRoad;
+                    index = CellIndexes.isCarRoad;
                 }
                 List<Vector2> cells = findPath(pos1, pos2);
-                if (cells.Count != 0)
+                for (int i = 0; i < cells.Count; i++)
                 {
-                    for (int i = 0; i < cells.Count; i++)
-                    {
-                        _map[(int)cells[i].X, (int)cells[i].Y, index] = type;
-                        dist++;
-                    }
+                    _map[(int)cells[i].X, (int)cells[i].Y, index] = type;
+                    dist++;
                 }
             }
 
@@ -135,8 +148,7 @@ namespace app.logics
 
         public Vertex getVertex(Vector2 pos)
         {
-            CellTypes type = _map[(int)pos.X, (int)pos.X, 1];
-            return new Vertex((int)pos.X, (int)pos.Y, type);
+            return new Vertex((int)pos.X, (int)pos.Y, getCellRoadType(pos));
         }
 
         public void addRoad(Vector2 pos1, Vector2 pos2, CellTypes type)
@@ -163,7 +175,7 @@ namespace app.logics
             {
                 for (int j = 0; j < Height; j++)
                 {
-                    if (_map[i, j, (int)CellIndexes.ground_type] == CellTypes.cell_ground_water)
+                    if (_map[i, j, CellIndexes.ground_type] == CellTypes.cell_ground_water)
                     {
                         matrix[i, j] = -1;
                     }
@@ -259,7 +271,7 @@ namespace app.logics
 
         public void DeleteRoads(Vector2 pos)
         {
-            _graph.deleteRoads(getVertex(pos));
+            _graph.deleteRoads(pos);
 
             clearRoads();
 
@@ -277,11 +289,67 @@ namespace app.logics
             {
                 for (int j = 0; j < Height; j++)
                 {
-                    _map[i, j, (int)CellIndexes.isCarRoad] = CellTypes.cell_none;
-                    _map[i, j, (int)CellIndexes.isRailway] = CellTypes.cell_none;
-                    _map[i, j, (int)CellIndexes.isAirRoad] = CellTypes.cell_none;
+                    _map[i, j, CellIndexes.isCarRoad] = CellTypes.cell_none;
+                    _map[i, j, CellIndexes.isRailway] = CellTypes.cell_none;
+                    _map[i, j, CellIndexes.isAirRoad] = CellTypes.cell_none;
                 }
             }
+        }
+
+        public void clearAll()
+        {
+            for (int i = 0; i < Width; i++)
+            {
+                for (int j = 0; j < Height; j++)
+                {
+                    _map[i, j, CellIndexes.ground_type] = CellTypes.cell_none;
+                    _map[i, j, CellIndexes.building_type] = CellTypes.cell_none;
+                    _map[i, j, CellIndexes.isCarRoad] = CellTypes.cell_none;
+                    _map[i, j, CellIndexes.isRailway] = CellTypes.cell_none;
+                    _map[i, j, CellIndexes.isAirRoad] = CellTypes.cell_none;
+                    _map[i, j, CellIndexes.isFocus] = CellTypes.cell_none;
+                }
+            }
+
+            _graph = new Graph();
+        }
+
+        public Tuple<int, List<Vertex>> DijkstraAlgorim(Vertex start, Vertex end)
+        {
+            return _graph.DijkstraAlgorim(start, end);
+        }
+
+        public CellTypes getCellRoadType(Vector2 pos)
+        {
+            if (_map[(int)pos.X, (int)pos.Y, CellIndexes.isCarRoad] == CellTypes.cell_road_car)
+            {
+                return CellTypes.cell_road_car;
+            }else if (_map[(int)pos.X, (int)pos.Y, CellIndexes.isRailway] == CellTypes.cell_road_train)
+            {
+                return CellTypes.cell_road_train;
+            }else if (_map[(int)pos.X, (int)pos.Y, CellIndexes.isRailway] == CellTypes.cell_road_air)
+            {
+                return CellTypes.cell_road_air;
+            }else
+            {
+                return CellTypes.cell_none;
+            }
+        }
+
+        public Tuple<int, List<Vector2>> getPath(Vector2 start, Vector2 end)
+        {
+            Vertex _start = new Vertex((int)start.X, (int)start.Y, getCellRoadType(new Vector2((int)start.X, (int)start.Y)));
+            Vertex _end = new Vertex((int)end.X, (int)end.Y, getCellRoadType(new Vector2((int)end.X, (int)end.Y)));
+            Tuple<int, List<Vertex>> path_vertex = _graph.DijkstraAlgorim(_start, _end);
+
+            Tuple<int, List<Vector2>> path = new Tuple<int, List<Vector2>>(path_vertex.Item1, new List<Vector2>(path_vertex.Item2.Count));
+
+            for (int i = 0; i < path_vertex.Item2.Count; i++)
+            {
+                path.Item2[i] = new Vector2(path_vertex.Item2[i].X, path_vertex.Item2[i].Y);
+            }
+
+            return path;
         }
     }
 }
