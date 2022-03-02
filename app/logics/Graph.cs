@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
@@ -36,13 +37,24 @@ namespace app.logics
             for (int i = 0; i < roads.Count; i++)
             {
                 if (roads[i].Equal(_first, _second, type))
+                {
                     roads[i].setDistance(dist);
+                }
+            }
+
+            for (int i = 0; i < vertexes.Count; i++)
+            {
+                if (vertexes[i] == _first)
+                    vertexes[i].setNeighbourDistance(_second, dist);
+                if (vertexes[i] == _second)
+                    vertexes[i].setNeighbourDistance(_first, dist);
             }
         }
 
-        public void addRoad(Vertex _first, Vertex _second, CellTypes type)
+        public void addRoad(Vertex _first, Vertex _second, CellTypes type, int dist)
         {
             Road road = new Road(_first, _second, type);
+            road.setDistance(dist);
             roads.Add(road);
 
             for (int i = 0; i < vertexes.Count; i++)
@@ -120,30 +132,29 @@ namespace app.logics
         public Tuple<int, List<Vertex>> DijkstraAlgorim(Vertex start, Vertex end)
         {
             d = new Dictionary<Vertex, int> { };
-            var used = new Dictionary<Vertex, bool> { };
-            int end_pos = -1;
+            
+            Dictionary<Vertex, bool> used = new Dictionary<Vertex, bool> { };
+            int endPos = -1;
 
             for (int i = 0; i < vertexes.Count; i++)
             {
+
                 d[vertexes[i]] = Int32.MaxValue;
                 used[vertexes[i]] = false;
-
                 if (vertexes[i] == end)
                 {
-                    end_pos = i;
-                    end = vertexes[i];
-                }else if (vertexes[i] == start)
-                    start = vertexes[i];
+                    endPos = i;
+                }
             }
-
-            if (end_pos == -1)
-                return new Tuple<int, List<Vertex>>(-1, new List<Vertex> { });
 
             d[start] = 0;
 
+            if (endPos == -1)
+                return new Tuple<int, List<Vertex>>(-1, new List<Vertex> { });
+
             for (int i = 0; i < vertexes.Count && d[end] == Int32.MaxValue; i++)
             {
-                remembered_pos = end_pos;
+                remembered_pos = endPos;
                 for (int j = 0; j < vertexes.Count; j++)
                 {
                     if (!used[vertexes[j]] && d[vertexes[j]] < d[vertexes[remembered_pos]])
@@ -157,10 +168,10 @@ namespace app.logics
 
                 used[vertexes[remembered_pos]] = true;
 
-                foreach (Tuple<Vertex, int> _neighbour in vertexes[remembered_pos].neighbours)
+                foreach (Neighbour _neighbour in vertexes[remembered_pos].neighbours)
                 {
-                    if (d[vertexes[remembered_pos]] + _neighbour.Item2 < d[_neighbour.Item1])
-                        d[_neighbour.Item1] = d[vertexes[remembered_pos]] + _neighbour.Item2;
+                    if (d[vertexes[remembered_pos]] + _neighbour.dist < d[_neighbour.neighbour])
+                        d[_neighbour.neighbour] = d[vertexes[remembered_pos]] + _neighbour.dist;
                 }
             }
 
@@ -174,11 +185,11 @@ namespace app.logics
             Vertex current = end;
             while (current != start)
             {
-                foreach(Tuple<Vertex, int> _neighbour in current.neighbours)
+                foreach(Neighbour _neighbour in current.neighbours)
                 {
-                    if (d[_neighbour.Item1] != Int32.MaxValue && d[current] - d[_neighbour.Item1] == _neighbour.Item2)
+                    if (d[_neighbour.neighbour] != Int32.MaxValue && d[current] - d[_neighbour.neighbour] == _neighbour.dist)
                     {
-                        current = _neighbour.Item1;
+                        current = _neighbour.neighbour;
                         break;
                     }
                 }
@@ -194,7 +205,7 @@ namespace app.logics
         public int X { get; private set; }
         public int Y { get; private set; }
         public CellTypes type { get; private set; }
-        public List<Tuple<Vertex, int>> neighbours { get; private set; }
+        public List<Neighbour> neighbours { get; private set; }
 
         public Vertex(int X, int Y, CellTypes type)
         {
@@ -202,7 +213,7 @@ namespace app.logics
             this.Y = Y;
             this.type = type;
 
-            this.neighbours = new List<Tuple<Vertex, int>> { };
+            this.neighbours = new List<Neighbour> { };
         }
 
         public static bool operator==(Vertex first, Vertex second)
@@ -212,14 +223,29 @@ namespace app.logics
             return false;
         }
 
-        public static bool operator !=(Vertex first, Vertex second)
+        public static bool operator!=(Vertex first, Vertex second)
         {
             return !(first == second);
         }
-    
+
+        public override bool Equals(object obj)
+        {
+            return (Vertex) obj == this;
+        }
+
+        public bool isPosEqual(Vector2 pos)
+        {
+            if (X == pos.X && Y == pos.Y)
+            {
+                return true;
+            }
+
+            return false;
+        }
+        
         public void addNeighbour(Vertex _vertex, int dist)
         {
-            neighbours.Add(new Tuple<Vertex, int>(_vertex, dist));
+            neighbours.Add(new Neighbour(_vertex, dist));
         }
 
         public void deleteNeighbour(Vertex neighbour)
@@ -228,7 +254,7 @@ namespace app.logics
 
             for (int i = 0; i < neighbours.Count(); i++)
             {
-                if (neighbours[i].Item1 == neighbour)
+                if (neighbours[i].neighbour == neighbour)
                 {
                     pos = i;
                     break;
@@ -244,7 +270,7 @@ namespace app.logics
 
             for (int i = 0; i < neighbours.Count(); i++)
             {
-                if (neighbours[i].Item1.X == pos.X && neighbours[i].Item1.Y == pos.Y)
+                if (neighbours[i].neighbour.isPosEqual(pos))
                 {
                     index = i;
                     break;
@@ -252,6 +278,15 @@ namespace app.logics
             }
             if (index != -1)
                 neighbours.RemoveAt(index);
+        }
+
+        public void setNeighbourDistance(Vertex _vertex, int dist)
+        {
+            for (int i = 0; i < neighbours.Count; i++)
+            {
+                if (neighbours[i].neighbour == _vertex)
+                    neighbours[i].dist = dist;
+            }
         }
     }
 
@@ -300,6 +335,18 @@ namespace app.logics
                 return true;
             }
             return false;
+        }
+    }
+
+    public class Neighbour
+    {
+        public int dist { get; set; }
+        public Vertex neighbour { get; private set; }
+
+        public Neighbour(Vertex _vertex, int dist)
+        {
+            neighbour = _vertex;
+            this.dist = dist;
         }
     }
 }

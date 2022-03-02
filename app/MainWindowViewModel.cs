@@ -97,8 +97,9 @@ namespace app
                 {
                     if (painter.map[(int)painter.hoveredCell.X, (int)painter.hoveredCell.Y, CellIndexes.building_type] != painter.hoveredCellType)
                     {
-                        painter.map.DeleteRoads(painter.hoveredCell);
                         painter.setCellType(painter.hoveredCell, painter.hoveredCellType);
+                        if (painter.map[(int)painter.hoveredCell.X, (int)painter.hoveredCell.Y, CellIndexes.building_type] != painter.hoveredCellType)
+                            painter.map.DeleteRoads(painter.hoveredCell, painter.hoveredCellType);
                     }
                 }
             }

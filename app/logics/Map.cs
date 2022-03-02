@@ -150,11 +150,15 @@ namespace app.logics
         {
             return new Vertex((int)pos.X, (int)pos.Y, getCellRoadType(pos));
         }
+        
+        public Vertex getVertex(Vector2 pos, CellTypes type)
+        {
+            return new Vertex((int)pos.X, (int)pos.Y, type);
+        }
 
         public void addRoad(Vector2 pos1, Vector2 pos2, CellTypes type)
         {
-            _graph.addRoad(getVertex(pos1), getVertex(pos2), type);
-            _graph.setRoadDistance(getVertex(pos1), getVertex(pos2), type, makeRoad(pos1, pos2, type));
+            _graph.addRoad(getVertex(pos1, type), getVertex(pos2, type), type, makeRoad(pos1, pos2, type));
         }
 
         public bool checkRoad(Vector2 pos1, Vector2 pos2, CellTypes type)
@@ -280,6 +284,21 @@ namespace app.logics
                 _graph.setRoadDistance(_road.first, _road.second, _road.type,
                     makeRoad(new Vector2(_road.first.X, _road.first.Y),
                     new Vector2(_road.second.X, _road.second.Y), _road.type));
+            }
+        }
+        
+        public void DeleteRoads(Vector2 pos, CellTypes type)
+        {
+            
+            _graph.deleteRoads(pos);
+
+            clearRoads();
+
+            foreach (Road _road in _graph.roads)
+            {
+                _graph.setRoadDistance(_road.first, _road.second, _road.type,
+                    makeRoad(new Vector2(_road.first.X, _road.first.Y),
+                        new Vector2(_road.second.X, _road.second.Y), _road.type));
             }
         }
 
