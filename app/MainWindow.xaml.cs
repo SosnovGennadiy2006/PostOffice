@@ -199,17 +199,48 @@ namespace app
                 Vector2 StartPos = new Vector2(Convert.ToInt32(PointStart_X.Text) - 1, Convert.ToInt32(PointStart_Y.Text) - 1);
                 Vector2 EndPos = new Vector2(Convert.ToInt32(PointEnd_X.Text) - 1, Convert.ToInt32(PointEnd_Y.Text) - 1);
 
-                try
-                {
-                    PathInfo path = Game.getPath(StartPos, EndPos);
+                Tuple<errorCodes, PathInfo> path = Game.getPath(StartPos, EndPos);
 
-                    InfoWindow window = new InfoWindow(ref path);
-                    window.Owner = this;
-                    window.ShowDialog();
-                }catch (Exception _e)
+                handleError(path);
+            }else
+            {
+                InfoWindowError window = new InfoWindowError("");
+                if (PointStart_X.Text == "" || PointEnd_X.Text == "")
                 {
-                    MessageBox.Show(_e.Message);
+                    window = new InfoWindowError(ErrorText.getError(errorCodes.startDestinationIsNotSelectedError));
                 }
+                else if (PointEnd_X.Text == "" || PointEnd_Y.Text == "")
+                {
+                    window = new InfoWindowError(ErrorText.getError(errorCodes.endDestinationIsNotSelectedError));
+                }
+                window.Owner = this;
+                window.ShowDialog();
+            }
+        }
+
+        private void handleError(Tuple<errorCodes, PathInfo> path)
+        {
+            switch (path.Item1)
+            {
+                case errorCodes.success:
+                    {
+                        PathInfo info = path.Item2;
+
+                        InfoWindow window = new InfoWindow(ref info);
+                        window.Owner = this;
+                        window.ShowDialog();
+
+                        break;
+                    }
+                case errorCodes.endVertexDoesntExistError:
+                case errorCodes.startVertexDoesntExistError:
+                    {
+                        InfoWindowError window = new InfoWindowError(ErrorText.getError(path.Item1));
+                        window.Owner = this;
+                        window.ShowDialog();
+
+                        break;
+                    }
             }
         }
     }

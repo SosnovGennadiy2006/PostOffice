@@ -377,7 +377,7 @@ namespace app.MonoGameControls
             RaiseSelectEvent(e.Pos);
         }
 
-        public PathInfo getPath(Vector2 start, Vector2 end)
+        public Tuple<errorCodes, PathInfo> getPath(Vector2 start, Vector2 end)
         {
             return _viewModel.getPath(start, end);
         }

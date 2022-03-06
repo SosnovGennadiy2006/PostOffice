@@ -33,7 +33,7 @@ namespace app.MonoGameControls
         void setSelectedRoadType(CellTypes type);
         void setOperationState(bool state);
 
-        PathInfo getPath(Vector2 start, Vector2 end);
+        Tuple<errorCodes, PathInfo> getPath(Vector2 start, Vector2 end);
 
         event SelectEventHandler SelectReached;
         void OnSelectReached(MapSelectedEventArgs e);
@@ -83,7 +83,7 @@ namespace app.MonoGameControls
         public virtual void setOperationState(bool state) { }
 
 
-        public virtual PathInfo getPath(Vector2 start, Vector2 end) { return null; }
+        public virtual Tuple<errorCodes, PathInfo> getPath(Vector2 start, Vector2 end) { return null; }
 
         public virtual void OnSelectReached(MapSelectedEventArgs e)
         {

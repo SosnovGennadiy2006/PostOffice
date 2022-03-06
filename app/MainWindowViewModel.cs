@@ -215,7 +215,7 @@ namespace app
             painter.map.secondSelectedPos = new Vector2(-1, -1);
         }
 
-        public override PathInfo getPath(Vector2 start, Vector2 end)
+        public override Tuple<errorCodes, PathInfo> getPath(Vector2 start, Vector2 end)
         {
             return painter.map.getPath(start, end);
         }

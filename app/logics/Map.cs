@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using app.logics.graph;
+using System;
 
 namespace app.logics
 {
@@ -333,7 +334,7 @@ namespace app.logics
             _graph = new Graph();
         }
 
-        public PathInfo DijkstraAlgorim(Vertex start, Vertex end)
+        public Tuple<errorCodes, PathInfo> DijkstraAlgorim(Vertex start, Vertex end)
         {
             return _graph.DijkstraAlgorim(start, end);
         }
@@ -355,8 +356,13 @@ namespace app.logics
             }
         }
 
-        public PathInfo getPath(Vector2 start, Vector2 end)
+        public Tuple<errorCodes, PathInfo> getPath(Vector2 start, Vector2 end)
         {
+            if (_map[(int)start.X, (int)start.Y, CellIndexes.building_type] != CellTypes.cell_base)
+                return new Tuple<errorCodes, PathInfo>(errorCodes.startVertexDoesntExistError, new PathInfo());
+            if (_map[(int)end.X, (int)end.Y, CellIndexes.building_type] != CellTypes.cell_base)
+                return new Tuple<errorCodes, PathInfo>(errorCodes.endVertexDoesntExistError, new PathInfo());
+
             Vertex _start = new Vertex((int)start.X, (int)start.Y, getCellRoadType(new Vector2((int)start.X, (int)start.Y)));
             Vertex _end = new Vertex((int)end.X, (int)end.Y, getCellRoadType(new Vector2((int)end.X, (int)end.Y)));
 

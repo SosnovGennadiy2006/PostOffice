@@ -145,7 +145,7 @@ namespace app.logics.graph
             throw new Exception("There isn't vertex in the graph!");
         }
 
-        public PathInfo DijkstraAlgorim(Vertex start, Vertex end)
+        public Tuple<errorCodes, PathInfo> DijkstraAlgorim(Vertex start, Vertex end)
         {
             DijkstraDictionary d = new DijkstraDictionary { };
 
@@ -161,7 +161,7 @@ namespace app.logics.graph
             }
 
             if (endPos == -1)
-                throw new Exception("There isn't end vertex in graph!");
+                return new Tuple<errorCodes, PathInfo>(errorCodes.endVertexDoesntExistError, new PathInfo());
 
             d[start].label = 0;
             int remembered_pos;
@@ -190,7 +190,7 @@ namespace app.logics.graph
             }
 
             if (d[end].label == Int32.MaxValue)
-                throw new Exception("End vertex is in another connected component!");
+                return new Tuple<errorCodes, PathInfo>(errorCodes.differentConnectivityComponentError, new PathInfo());
 
             PathInfo res = new PathInfo();
 
@@ -229,7 +229,7 @@ namespace app.logics.graph
             // Optional
             res.Reverse();
 
-            return res;
+            return new Tuple<errorCodes, PathInfo>(errorCodes.success, res);
         }
     }
 

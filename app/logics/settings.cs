@@ -63,6 +63,37 @@ namespace app.logics
         End
     }
 
+    public enum errorCodes
+    {
+        success,
+        startDestinationIsNotSelectedError,
+        endDestinationIsNotSelectedError,
+        startVertexDoesntExistError,
+        endVertexDoesntExistError,
+        differentConnectivityComponentError
+    }
+
+    public static class ErrorText
+    {
+        public static string getError(errorCodes code)
+        {
+            switch (code)
+            {
+                case errorCodes.startDestinationIsNotSelectedError:
+                    return "The start destination isn't selected!";
+                case errorCodes.endDestinationIsNotSelectedError:
+                    return "The end destination isn't selected!";
+                case errorCodes.startVertexDoesntExistError:
+                    return "The start destination isn't post office!";
+                case errorCodes.endVertexDoesntExistError:
+                    return "The end destination isn't post office!";
+                case errorCodes.differentConnectivityComponentError:
+                    return "The Start and end destination are in different connectivity components!";
+            }
+            return "!";
+        }
+    }
+
     public class MapSelectedEventArgs : EventArgs
     {
         private readonly Vector2 postOfficePos;
