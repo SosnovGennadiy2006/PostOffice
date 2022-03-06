@@ -7,45 +7,55 @@
         mc:Ignorable="d"
         Title="Routing Info" Height="450" Width="800"
         MaxHeight="450" MaxWidth="800" MinHeight="450" MinWidth="800">
-    <Grid Margin="20">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"></RowDefinition>
             <RowDefinition Height="auto"></RowDefinition>
             <RowDefinition Height="auto"></RowDefinition>
             <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
         </Grid.RowDefinitions>
-        <Label Grid.Column="0" Grid.Row="0" FontSize="32" HorizontalAlignment="Center">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition Width="auto"></ColumnDefinition>
+            <ColumnDefinition Width="auto"></ColumnDefinition>
+            <ColumnDefinition Width="auto"></ColumnDefinition>
+            <ColumnDefinition></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Label Grid.Column="0" Grid.Row="0" FontSize="32" Grid.ColumnSpan="5" HorizontalAlignment="Center">
             <StackPanel Orientation="Horizontal">
-                <TextBlock>There is path from</TextBlock>
+                <TextBlock>Shortest path from</TextBlock>
                 <Separator Width="10" Opacity="0"></Separator>
-                <TextBlock x:Name="firstPoint">(0, 0)</TextBlock>
+                <TextBlock x:Name="firstPoint" Foreground="DarkOrange">(0, 0)</TextBlock>
                 <Separator Width="10" Opacity="0"></Separator>
                 <TextBlock>to</TextBlock>
                 <Separator Width="10" Opacity="0"></Separator>
-                <TextBlock x:Name="secondPoint">(0, 0)</TextBlock>
+                <TextBlock x:Name="secondPoint" Foreground="DarkOrange">(0, 0)</TextBlock>
+                <TextBlock>:</TextBlock>
             </StackPanel>            
         </Label>
-        <Label Grid.Column="0" Grid.Row="1" FontSize="24">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock>Total Distance:</TextBlock>
-                <Separator Width="10" Opacity="0"></Separator>
-                <TextBlock Foreground="Blue" x:Name="distanceIndicator">0</TextBlock>
-            </StackPanel>
-        </Label>
-        <Label Grid.Column="0" Grid.Row="2" FontSize="24">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock>Total Cost:</TextBlock>
-                <Separator Width="10" Opacity="0"></Separator>
-                <TextBlock Foreground="Blue" x:Name="costIndicator">0</TextBlock>
-            </StackPanel>
-        </Label>
-        <Label Grid.Column="0" Grid.Row="3" FontSize="24">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock>Total Time:</TextBlock>
-                <Separator Width="10" Opacity="0"></Separator>
-                <TextBlock Foreground="Blue" x:Name="timeIndicator">0</TextBlock>
-            </StackPanel>
-        </Label>
+        <Label Grid.Column="1" Grid.Row="1" FontSize="24">Total distance:</Label>
+        <Separator Grid.Column="2" Grid.Row="1" Width="30" Opacity="0"></Separator>
+        <Label Grid.Column="3" Grid.Row="1" FontSize="24" HorizontalAlignment="Center" Foreground="Blue" x:Name="distanceIndicator">0</Label>
+
+        <Label Grid.Column="1" Grid.Row="2" FontSize="24">Total cost:</Label>
+        <Separator Grid.Column="2" Grid.Row="2" Width="10" Opacity="0"></Separator>
+        <Label Grid.Column="3" Grid.Row="2" FontSize="24" HorizontalAlignment="Center" Foreground="Blue" x:Name="costIndicator">0</Label>
+
+        <Label Grid.Column="1" Grid.Row="3" FontSize="24">Total time:</Label>
+        <Separator Grid.Column="2" Grid.Row="3" Width="10" Opacity="0"></Separator>
+        <Label Grid.Column="3" Grid.Row="3" FontSize="24" HorizontalAlignment="Center" Foreground="Blue" x:Name="timeIndicator">0</Label>
+
+        <Label Grid.Column="0" Grid.Row="4" Grid.ColumnSpan="5" FontSize="18" HorizontalAlignment="Center">The path passes through these places:</Label>
+
+        <TextBox Grid.Column="0" Grid.Row="5" Grid.ColumnSpan="5" MinWidth="400" HorizontalAlignment="Center" IsReadOnly="True"
+         AcceptsReturn="True" Height="100" VerticalScrollBarVisibility="Auto"
+         HorizontalScrollBarVisibility="Auto" x:Name="PathTextArea"></TextBox>
+
+        <StackPanel Grid.Column="0" Grid.Row="6" Grid.ColumnSpan="5" Background="#eee">
+            <Button Margin="10" HorizontalAlignment="Right" Padding="25 5" FontSize="14" Cursor="Hand" Click="ButtonExit_Click" x:Name="ButtonExit">OK</Button>
+        </StackPanel>
     </Grid>
 </Window>

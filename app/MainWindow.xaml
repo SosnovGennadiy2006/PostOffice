@@ -130,10 +130,10 @@
                             <Label Content="Start:" Grid.Row="1" Grid.Column="0" FontSize="14"></Label>
                             <Separator Grid.Row="1"  Grid.Column="1" Opacity="0"></Separator>
                             <Label Content="(" Grid.Row="1" Grid.Column="2" FontSize="14"></Label>
-                            <TextBox TextWrapping="NoWrap" FontSize="14" Width="30" Height="22" PreviewTextInput="textBoxPreviewTextInput" 
+                            <TextBox TextWrapping="NoWrap" FontSize="14" Width="30" Height="22" IsReadOnly="True" 
                                      Grid.Column="3" Grid.Row="1" x:Name="PointStart_X"></TextBox>
                             <Label Content=", " Grid.Row="1" Grid.Column="4" FontSize="14"></Label>
-                            <TextBox TextWrapping="NoWrap" FontSize="14" Width="30" Height="22" PreviewTextInput="textBoxPreviewTextInput" 
+                            <TextBox TextWrapping="NoWrap" FontSize="14" Width="30" Height="22" IsReadOnly="True"  
                                      Grid.Column="5" Grid.Row="1" x:Name="PointStart_Y"></TextBox>
                             <Label Content=")" Grid.Row="1" Grid.Column="6" FontSize="14"></Label>
                             <Separator Grid.Row="1" Grid.Column="7" Opacity="0"></Separator>
@@ -142,10 +142,10 @@
                             <Label Content="End:" Grid.Row="3" Grid.Column="0" FontSize="14"></Label>
                             <Separator Grid.Row="3"  Grid.Column="1" Opacity="0"></Separator>
                             <Label Content="(" Grid.Row="3" Grid.Column="2" FontSize="14"></Label>
-                            <TextBox TextWrapping="NoWrap" FontSize="14" Width="30" Height="22" PreviewTextInput="textBoxPreviewTextInput" 
+                            <TextBox TextWrapping="NoWrap" FontSize="14" Width="30" Height="22" IsReadOnly="True"  
                                      Grid.Column="3" Grid.Row="3" x:Name="PointEnd_X"></TextBox>
                             <Label Content=", " Grid.Row="3" Grid.Column="4" FontSize="14"></Label>
-                            <TextBox TextWrapping="NoWrap" FontSize="14" Width="30" Height="22" PreviewTextInput="textBoxPreviewTextInput" 
+                            <TextBox TextWrapping="NoWrap" FontSize="14" Width="30" Height="22" IsReadOnly="True"  
                                      Grid.Column="5" Grid.Row="3" x:Name="PointEnd_Y"></TextBox>
                             <Label Content=")" Grid.Row="3" Grid.Column="6" FontSize="14"></Label>
                             <Separator Grid.Row="3" Grid.Column="7" Opacity="0"></Separator>

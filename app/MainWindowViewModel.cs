@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Windows.Input;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -216,7 +215,7 @@ namespace app
             painter.map.secondSelectedPos = new Vector2(-1, -1);
         }
 
-        public override Tuple<int, List<Vector2>> getPath(Vector2 start, Vector2 end)
+        public override PathInfo getPath(Vector2 start, Vector2 end)
         {
             return painter.map.getPath(start, end);
         }

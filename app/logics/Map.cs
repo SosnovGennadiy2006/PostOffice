@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
-using System;
 using Microsoft.Xna.Framework;
+using app.logics.graph;
 
 namespace app.logics
 {
@@ -158,7 +158,7 @@ namespace app.logics
 
         public void addRoad(Vector2 pos1, Vector2 pos2, CellTypes type)
         {
-            _graph.addRoad(getVertex(pos1, type), getVertex(pos2, type), type, makeRoad(pos1, pos2, type));
+            _graph.addRoad(getVertex(pos1), getVertex(pos2), type, makeRoad(pos1, pos2, type));
         }
 
         public bool checkRoad(Vector2 pos1, Vector2 pos2, CellTypes type)
@@ -333,7 +333,7 @@ namespace app.logics
             _graph = new Graph();
         }
 
-        public Tuple<int, List<Vertex>> DijkstraAlgorim(Vertex start, Vertex end)
+        public PathInfo DijkstraAlgorim(Vertex start, Vertex end)
         {
             return _graph.DijkstraAlgorim(start, end);
         }
@@ -355,20 +355,12 @@ namespace app.logics
             }
         }
 
-        public Tuple<int, List<Vector2>> getPath(Vector2 start, Vector2 end)
+        public PathInfo getPath(Vector2 start, Vector2 end)
         {
             Vertex _start = new Vertex((int)start.X, (int)start.Y, getCellRoadType(new Vector2((int)start.X, (int)start.Y)));
             Vertex _end = new Vertex((int)end.X, (int)end.Y, getCellRoadType(new Vector2((int)end.X, (int)end.Y)));
-            Tuple<int, List<Vertex>> path_vertex = _graph.DijkstraAlgorim(_start, _end);
 
-            Tuple<int, List<Vector2>> path = new Tuple<int, List<Vector2>>(path_vertex.Item1, new List<Vector2>(path_vertex.Item2.Count));
-
-            for (int i = 0; i < path_vertex.Item2.Count; i++)
-            {
-                path.Item2[i] = new Vector2(path_vertex.Item2[i].X, path_vertex.Item2[i].Y);
-            }
-
-            return path;
+            return _graph.DijkstraAlgorim(_start, _end);
         }
     }
 }

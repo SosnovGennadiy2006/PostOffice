@@ -199,13 +199,18 @@ namespace app
                 Vector2 StartPos = new Vector2(Convert.ToInt32(PointStart_X.Text) - 1, Convert.ToInt32(PointStart_Y.Text) - 1);
                 Vector2 EndPos = new Vector2(Convert.ToInt32(PointEnd_X.Text) - 1, Convert.ToInt32(PointEnd_Y.Text) - 1);
 
-                Tuple<int, List<Vector2>> path = Game.getPath(StartPos, EndPos);
+                try
+                {
+                    PathInfo path = Game.getPath(StartPos, EndPos);
 
-                InfoWindow window = new InfoWindow(ref path);
-                window.Activate();
+                    InfoWindow window = new InfoWindow(ref path);
+                    window.Owner = this;
+                    window.ShowDialog();
+                }catch (Exception _e)
+                {
+                    MessageBox.Show(_e.Message);
+                }
             }
-            //Vector2 pointStartPos = new Vector2(PointStart_X.Text)
-            //InfoWindow window = new InfoWindow(Game.getPath())
         }
     }
 }
