@@ -7,7 +7,7 @@
     xmlns:monoGameControls="clr-namespace:app.MonoGameControls"
     xmlns:local="clr-namespace:app"
     mc:Ignorable="d"
-    Title="Post Office" 
+    Title="Post Office"
     WindowStartupLocation="CenterScreen"
     Width="960"
     Height="510"
@@ -17,16 +17,39 @@
         <local:MainWindowViewModel />
     </Window.DataContext>
 
+    <!--Commands-->
+    <Window.CommandBindings>
+        <CommandBinding Command="Save" Executed="SaveCommandBinding_Executed"/>
+        <CommandBinding Command="Open" Executed="OpenCommandBinding_Executed"/>
+    </Window.CommandBindings>
+
+    <!--Hot keys-->
+    <Window.InputBindings>
+        <KeyBinding Key="S" Modifiers="Control" Command="Save"/>
+        <KeyBinding Key="O" Modifiers="Control" Command="Open"/>
+    </Window.InputBindings>
+
+    <!--Main content-->
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition MaxWidth="400"></ColumnDefinition>
             <ColumnDefinition></ColumnDefinition>
         </Grid.ColumnDefinitions>
 
-        <Border BorderBrush="Gray" BorderThickness="1" Grid.Row="0" Grid.Column="0">
+        <Menu VerticalAlignment="Top" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2">
+            <MenuItem Header="_File">
+                <MenuItem Header="_Save" Command="Save" InputGestureText="Ctrl+S"></MenuItem>
+                <MenuItem Header="_Open" Command="Open" InputGestureText="Ctrl+O"></MenuItem>
+                <Separator />
+                <MenuItem Header="_Exit" InputGestureText="Alt+F4"></MenuItem>
+            </MenuItem>
+        </Menu>
+
+        <Border BorderBrush="Gray" BorderThickness="1" Grid.Row="1" Grid.Column="0">
             <ScrollViewer Padding="10">
                 <StackPanel>
                     <Label Content="Settings" HorizontalAlignment="Center" FontSize="24"></Label>
@@ -66,7 +89,7 @@
                                 <ColumnDefinition Width="*"></ColumnDefinition>
                                 <ColumnDefinition Width="auto"></ColumnDefinition>
                             </Grid.ColumnDefinitions>
-                            <Button Content="Base" Cursor="Hand" Click="BasePlaceBtn_OnClick" Grid.Column="0" x:Name="BasePlaceBtn" Padding="20 5"/>
+                            <Button Content="Post Office" Cursor="Hand" Click="BasePlaceBtn_OnClick" Grid.Column="0" x:Name="BasePlaceBtn" Padding="20 5"/>
                             <Separator Grid.Column="1" Opacity="0"></Separator>
                             <Button Content="Airport" Cursor="Hand" Click="AirportPlaceBtn_OnClick" Grid.Column="2" x:Name="AirportPlaceBtn" Padding="20 5"/>
                             <Separator Grid.Column="3" Opacity="0"></Separator>
@@ -159,6 +182,6 @@
         </Border>
 
         <monoGameControls:MonoGameContentControl MouseMove="GameMouseMove" Select="Game_Select" MouseLeave="GameMouseLeave" MouseDown="Game_OnMouseDown"
-                                                 MouseUp="Game_OnMouseUp" Grid.Row="0" Grid.Column="1" x:Name="Game"/>
+                                                 MouseUp="Game_OnMouseUp" Grid.Row="1" Grid.Column="1" x:Name="Game"/>
     </Grid>
 </Window>

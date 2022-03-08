@@ -28,6 +28,7 @@ using System.Windows.Media;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using app.logics;
+using app.logics.graph;
 using CellTypes = app.logics.CellTypes;
 
 namespace app.MonoGameControls
@@ -116,7 +117,7 @@ namespace app.MonoGameControls
 
         private void Start()
         {
-            if(_isInitialized)
+            if (_isInitialized)
                 return;
 
             if (Application.Current.MainWindow == null)
@@ -133,7 +134,7 @@ namespace app.MonoGameControls
                     _isFirstLoad = false;
                 }
             };
-            
+
             _direct3DImage = new D3DImage();
 
             AddChild(new Image { Source = _direct3DImage, Stretch = Stretch.None });
@@ -155,7 +156,7 @@ namespace app.MonoGameControls
             base.OnRenderSizeChanged(sizeInfo);
 
             _viewModel.setSize(new Vector2((float)sizeInfo.NewSize.Width, (float)sizeInfo.NewSize.Height));
-            
+
             // sometimes OnRenderSizeChanged happens before OnLoaded.
             Start();
             ResetBackBufferReference();
@@ -380,6 +381,31 @@ namespace app.MonoGameControls
         public Tuple<errorCodes, PathInfo> getPath(Vector2 start, Vector2 end)
         {
             return _viewModel.getPath(start, end);
+        }
+
+        public CellTypes[,,] getMap()
+        {
+            return _viewModel.getMap();
+        }
+
+        public Vector2 getMapSize()
+        {
+            return _viewModel.getMapSize();
+        }
+
+        public ref Graph getGraph()
+        {
+            return ref _viewModel.getGraph();
+        }
+
+        public void setMap(int mapWidth, int mapHeight, ref CellTypes[,,] map)
+        {
+            _viewModel.setMap(mapWidth, mapHeight, ref map);
+        }
+
+        public void setGraph(Graph newGraph)
+        {
+            _viewModel.setGraph(newGraph);
         }
     }
 }

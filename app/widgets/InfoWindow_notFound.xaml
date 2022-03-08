@@ -1,0 +1,47 @@
+﻿<Window x:Class="app.widgets.InfoWindow_notFound"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:app.widgets"
+        mc:Ignorable="d"
+        Title="Path not found!" Height="450" Width="800" 
+        MaxHeight="450" MaxWidth="800" MinWidth="800" MinHeight="450"
+        ResizeMode="CanMinimize">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="auto"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Label Grid.Column="0" Grid.Row="0" FontSize="32" Grid.ColumnSpan="2" HorizontalAlignment="Center">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock>The path from</TextBlock>
+                <Separator Width="10" Opacity="0"></Separator>
+                <TextBlock x:Name="firstPoint" Foreground="DarkOrange">(0, 0)</TextBlock>
+                <Separator Width="10" Opacity="0"></Separator>
+                <TextBlock>to</TextBlock>
+                <Separator Width="10" Opacity="0"></Separator>
+                <TextBlock x:Name="secondPoint" Foreground="DarkOrange">(0, 0)</TextBlock>
+                <Separator Width="10" Opacity="0"></Separator>
+                <TextBlock>isn't found!</TextBlock>
+            </StackPanel>
+        </Label>
+
+        <Label Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" FontSize="24" Margin="20" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Foreground="Crimson">Reason:</TextBlock>
+                <Separator Width="10" Opacity="0"></Separator>
+                <TextBlock x:Name="ReasonLbl"></TextBlock>
+            </StackPanel>
+        </Label>
+
+        <StackPanel Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2" Background="#eee">
+            <Button Margin="10" HorizontalAlignment="Right" Padding="25 5" FontSize="14" Cursor="Hand" Click="ButtonExit_Click" x:Name="ButtonExit">OK</Button>
+        </StackPanel>
+    </Grid>
+</Window>

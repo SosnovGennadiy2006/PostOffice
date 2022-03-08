@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using app.MonoGameControls;
 using app.logics;
+using app.logics.graph;
 using app.view;
 using Keyboard = System.Windows.Input.Keyboard;
 using CellTypes = app.logics.CellTypes;
@@ -218,6 +219,31 @@ namespace app
         public override Tuple<errorCodes, PathInfo> getPath(Vector2 start, Vector2 end)
         {
             return painter.map.getPath(start, end);
+        }
+
+        public override CellTypes[,,] getMap()
+        {
+            return painter.map.map;
+        }
+
+        public override Vector2 getMapSize()
+        {
+            return new Vector2(painter.map.Width, painter.map.Height);
+        }
+
+        public override ref Graph getGraph()
+        {
+            return ref painter.map._graph;
+        }
+
+        public override void setMap(int mapWidth, int mapHeight, ref CellTypes[,,] map)
+        {
+            painter.map.setMap(mapWidth, mapHeight, ref map);
+        }
+
+        public override void setGraph(Graph newGraph)
+        {
+            painter.map.graph = newGraph;
         }
 
         public void makeRoad()

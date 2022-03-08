@@ -67,6 +67,11 @@ namespace app.logics.graph
             neighbours.Add(new Neighbour(_vertex, dist, type));
         }
 
+        public void addNeighbour(Vertex _vertex, int dist, int cost, int time)
+        {
+            neighbours.Add(new Neighbour(_vertex, dist, cost, time));
+        }
+
         public void deleteNeighbour(Vertex neighbour)
         {
             int pos = -1;
@@ -116,12 +121,20 @@ namespace app.logics.graph
         public int dist { get; set; }
         public int cost { get; set; }
         public int time { get; set; }
-        public Vertex neighbour { get; private set; }
+        public Vertex neighbour { get; set; }
 
         public Neighbour(Vertex _vertex, int dist, CellTypes type)
         {
             neighbour = _vertex;
             setDistance(dist, type);
+        }
+
+        public Neighbour(Vertex _vertex, int dist, int cost, int time)
+        {
+            neighbour = _vertex;
+            this.dist = dist;
+            this.cost = cost;
+            this.time = time;
         }
 
         public void setDistance(int dist, CellTypes type)

@@ -3,6 +3,8 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net472</TargetFramework>
     <UseWPF>true</UseWPF>
+    <ApplicationIcon>Content\icons\icon.ico</ApplicationIcon>
+    <Win32Resource />
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <PlatformTarget>x86</PlatformTarget>
@@ -20,5 +22,9 @@
 
 <ItemGroup>
     <Reference Include="System.Runtime" />
+</ItemGroup>
+
+<ItemGroup>
+  <Folder Include="Content\icons\" />
 </ItemGroup>
 </Project>

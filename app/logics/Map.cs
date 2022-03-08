@@ -13,7 +13,7 @@ namespace app.logics
         public Vector2 firstSelectedPos { get; set; }
         public Vector2 secondSelectedPos { get; set; }
 
-        private Graph _graph;
+        public Graph _graph;
 
         public Graph graph
         {
@@ -21,13 +21,25 @@ namespace app.logics
             {
                 return _graph;
             }
-            private set
+            set
             {
                 _graph = value;
             }
         }
 
         private CellTypes[,,] _map;
+
+        public CellTypes[,,] map
+        {
+            get
+            {
+                return _map;
+            }
+            private set
+            {
+                _map = value;
+            }
+        }
 
         public CellTypes this[int i, int j, int w]
         {
@@ -57,6 +69,24 @@ namespace app.logics
                     _map[i, j, CellIndexes.isRailway] = CellTypes.cell_none;
                     _map[i, j, CellIndexes.isAirRoad] = CellTypes.cell_none;
                     _map[i, j, CellIndexes.isFocus] = CellTypes.cell_none;
+                }
+            }
+        }
+
+        public void setMap(int w, int h, ref CellTypes[,,] map)
+        {
+            resize_map(w, h);
+
+            for (int i = 0; i < w; i++)
+            {
+                for (int j = 0; j < h; j++)
+                {
+                    _map[i, j, CellIndexes.ground_type] = map[i, j, CellIndexes.ground_type];
+                    _map[i, j, CellIndexes.building_type] = map[i, j, CellIndexes.building_type];
+                    _map[i, j, CellIndexes.isCarRoad] = map[i, j, CellIndexes.isCarRoad];
+                    _map[i, j, CellIndexes.isRailway] = map[i, j, CellIndexes.isRailway];
+                    _map[i, j, CellIndexes.isAirRoad] = map[i, j, CellIndexes.isAirRoad];
+                    _map[i, j, CellIndexes.isFocus] = map[i, j, CellIndexes.isFocus];
                 }
             }
         }
@@ -358,8 +388,12 @@ namespace app.logics
 
         public Tuple<errorCodes, PathInfo> getPath(Vector2 start, Vector2 end)
         {
+            if (start.X > Width - 1 || start.Y > Height - 1)
+                return new Tuple<errorCodes, PathInfo>(errorCodes.startVertexDoesntExistError, new PathInfo());
             if (_map[(int)start.X, (int)start.Y, CellIndexes.building_type] != CellTypes.cell_base)
                 return new Tuple<errorCodes, PathInfo>(errorCodes.startVertexDoesntExistError, new PathInfo());
+            if (end.X > Width - 1 || end.Y > Height - 1)
+                return new Tuple<errorCodes, PathInfo>(errorCodes.endVertexDoesntExistError, new PathInfo());
             if (_map[(int)end.X, (int)end.Y, CellIndexes.building_type] != CellTypes.cell_base)
                 return new Tuple<errorCodes, PathInfo>(errorCodes.endVertexDoesntExistError, new PathInfo());
 

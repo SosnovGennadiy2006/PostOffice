@@ -88,9 +88,10 @@ namespace app.logics
                 case errorCodes.endVertexDoesntExistError:
                     return "The end destination isn't post office!";
                 case errorCodes.differentConnectivityComponentError:
-                    return "The Start and end destination are in different connectivity components!";
+                    return "the start and end destination are in different \nconnectivity components!";
+                default:
+                    return "Undefined error!";
             }
-            return "!";
         }
     }
 

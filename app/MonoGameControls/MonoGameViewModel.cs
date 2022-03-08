@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using app.logics;
+using app.logics.graph;
 using CellTypes = app.logics.CellTypes;
 
 namespace app.MonoGameControls
@@ -34,6 +35,11 @@ namespace app.MonoGameControls
         void setOperationState(bool state);
 
         Tuple<errorCodes, PathInfo> getPath(Vector2 start, Vector2 end);
+        CellTypes[,,] getMap();
+        Vector2 getMapSize();
+        ref Graph getGraph();
+        void setMap(int mapWidth, int mapHeight, ref CellTypes[,,] map);
+        void setGraph(Graph newGraph);
 
         event SelectEventHandler SelectReached;
         void OnSelectReached(MapSelectedEventArgs e);
@@ -83,7 +89,35 @@ namespace app.MonoGameControls
         public virtual void setOperationState(bool state) { }
 
 
-        public virtual Tuple<errorCodes, PathInfo> getPath(Vector2 start, Vector2 end) { return null; }
+        public virtual Tuple<errorCodes, PathInfo> getPath(Vector2 start, Vector2 end)
+        {
+            throw new NotImplementedException("Method not implemented!");
+        }
+
+        public virtual CellTypes[,,] getMap()
+        {
+            throw new NotImplementedException("Method not implemented!");
+        }
+
+        public virtual Vector2 getMapSize()
+        {
+            throw new NotImplementedException("Method not implemented!");
+        }
+
+        public virtual ref Graph getGraph()
+        {
+            throw new NotImplementedException("Method not implemented!");
+        }
+
+        public virtual void setMap(int mapWidth, int mapHeight, ref CellTypes[,,] map)
+        {
+            throw new NotImplementedException("Method not implemented!");
+        }
+
+        public virtual void setGraph(Graph newGraph)
+        {
+            throw new NotImplementedException("Method not implemented!");
+        }
 
         public virtual void OnSelectReached(MapSelectedEventArgs e)
         {
