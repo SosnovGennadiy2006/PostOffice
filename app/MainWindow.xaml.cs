@@ -492,6 +492,16 @@ namespace app
 
             Game.setMap(width, height, ref map);
             Game.setGraph(emptyGraph);
+
+            Game.changeHoveredCellType(CellTypes.cell_none);
+            Game.setSelectedRoadType(CellTypes.cell_none);
+            Game.setOperationState(false);
+            selectType = selectPointTypeEnum.None;
+
+            PointStart_X.Text = "";
+            PointStart_Y.Text = "";
+            PointEnd_X.Text = "";
+            PointEnd_Y.Text = "";
         }
 
         private void SaveCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)

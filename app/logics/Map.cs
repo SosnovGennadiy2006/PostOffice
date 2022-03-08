@@ -167,10 +167,10 @@ namespace app.logics
                     index = CellIndexes.isCarRoad;
                 }
                 List<Vector2> cells = findPath(pos1, pos2);
+                dist = cells.Count;
                 for (int i = 0; i < cells.Count; i++)
                 {
                     _map[(int)cells[i].X, (int)cells[i].Y, index] = type;
-                    dist++;
                 }
             }
 
@@ -204,7 +204,7 @@ namespace app.logics
         {
             List<Vector2> path = new List<Vector2> { };
 
-            int[,] matrix = new int[Width, (int)Height];
+            int[,] matrix = new int[Width, Height];
 
             for (int i = 0; i < Width; i++)
             {
@@ -303,20 +303,6 @@ namespace app.logics
 
             return flag;
         }
-
-        public void DeleteRoads(Vector2 pos)
-        {
-            _graph.deleteRoads(pos);
-
-            clearRoads();
-
-            foreach (Road _road in _graph.roads)
-            {
-                _graph.setRoadDistance(_road.first, _road.second, _road.type,
-                    makeRoad(new Vector2(_road.first.X, _road.first.Y),
-                    new Vector2(_road.second.X, _road.second.Y), _road.type));
-            }
-        }
         
         public void DeleteRoads(Vector2 pos, CellTypes type)
         {
@@ -325,11 +311,23 @@ namespace app.logics
 
             clearRoads();
 
+            List<Vector4> rememberToDelete = new List<Vector4> { };
+
             foreach (Road _road in _graph.roads)
             {
-                _graph.setRoadDistance(_road.first, _road.second, _road.type,
-                    makeRoad(new Vector2(_road.first.X, _road.first.Y),
-                        new Vector2(_road.second.X, _road.second.Y), _road.type));
+                int dist = makeRoad(new Vector2(_road.first.X, _road.first.Y),
+                        new Vector2(_road.second.X, _road.second.Y), _road.type);
+
+                if (dist != 0)
+                    _graph.setRoadDistance(_road.first, _road.second, _road.type, dist);
+                else
+                    rememberToDelete.Add(new Vector4(_road.first.X, _road.first.Y, _road.second.X, _road.second.Y));
+            }
+
+            for (int i = 0; i < rememberToDelete.Count; i++)
+            {
+                _graph.deleteCurrentNeighbours(new Vector2(rememberToDelete[i].X, rememberToDelete[i].Y),
+                    new Vector2(rememberToDelete[i].Z, rememberToDelete[i].W));
             }
         }
 

@@ -74,7 +74,7 @@ namespace app.logics.graph
 
             for (int i = 0; i < roads.Count; i++)
             {
-                if ((roads[i].first == _vertex) || (roads[i].second == _vertex))
+                if (roads[i].first.isPosEqual(_vertex) || roads[i].second.isPosEqual(_vertex))
                 {
                     roadsToDelete.Add(i);
                 }
@@ -121,6 +121,26 @@ namespace app.logics.graph
 
             if (k != -1)
                 vertexes.RemoveAt(k);
+        }
+
+        public void deleteCurrentNeighbours(Vector2 first, Vector2 second)
+        {
+            for (int i = 0; i < vertexes.Count(); i++)
+            {
+                if (vertexes[i].isPosEqual(first))
+                    vertexes[i].deleteNeighbour(second);
+
+                if (vertexes[i].isPosEqual(second))
+                    vertexes[i].deleteNeighbour(first);
+            }
+
+            for (int i = roads.Count - 1; i >= 0; i--)
+            {
+                if (roads[i].first.isPosEqual(first) && roads[i].second.isPosEqual(second))
+                    roads.RemoveAt(i);
+                else if (roads[i].second.isPosEqual(first) && roads[i].first.isPosEqual(second))
+                    roads.RemoveAt(i);
+            }
         }
 
         public Vertex getVertex(Vertex _vertex)
