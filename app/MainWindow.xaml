@@ -177,6 +177,7 @@
                             <Button Content="Route" Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="9" Click="getPathBtn_Click" Cursor="Hand" FontSize="12" Padding="0 4"></Button>
                         </Grid>
                     </GroupBox>
+                    <Label HorizontalAlignment="Center" FontSize="14">©Sosnov Gennadiy, 2022</Label>
                 </StackPanel>
             </ScrollViewer>
         </Border>
