@@ -5,14 +5,38 @@ using System;
 
 namespace app.logics
 {
+    /// <summary>
+    /// Class for map
+    /// </summary>
     class Map
     {
+        /// <summary>
+        /// Map width
+        /// </summary>
         public int Width { get; private set; }
+        
+        /// <summary>
+        /// Map Height
+        /// </summary>
         public int Height { get; private set; }
 
+        /// <summary>
+        /// First selected post office
+        ///
+        /// This variable for select event
+        /// </summary>
         public Vector2 firstSelectedPos { get; set; }
+        
+        /// <summary>
+        /// Second selected post office
+        ///
+        /// This variable for select event
+        /// </summary>
         public Vector2 secondSelectedPos { get; set; }
 
+        /// <summary>
+        /// Graph variable for Dijkstra algorithm
+        /// </summary>
         public Graph _graph;
 
         public Graph graph
@@ -27,6 +51,9 @@ namespace app.logics
             }
         }
 
+        /// <summary>
+        /// Variable that presents a map
+        /// </summary>
         private CellTypes[,,] _map;
 
         public CellTypes[,,] map
@@ -41,24 +68,41 @@ namespace app.logics
             }
         }
 
+        /// <summary>
+        /// Indexer for map
+        /// </summary>
+        /// <param name="i">Cell position X</param>
+        /// <param name="j">Cell position Y</param>
+        /// <param name="w">Cell parameter</param>
         public CellTypes this[int i, int j, int w]
         {
             get { return _map[i, j, w]; }
             set { _map[i, j, w] = value; }
         }
 
+        /// <summary>
+        /// Constructor for map
+        /// </summary>
+        /// <param name="w">Map width</param>
+        /// <param name="h">Map height</param>
         public Map(int w = 10, int h = 10)
         {
             _graph = new Graph();
             resize_map(w, h);
         }
 
+        /// <summary>
+        /// Method that resize map
+        /// </summary>
+        /// <param name="w">New width</param>
+        /// <param name="h">New height</param>
         public void resize_map(int w, int h)
         {
             Width = w;
             Height = h;
 
             _map = new CellTypes[Width, Height, 6];
+            // Reset all cell`s parameters
             for (int i = 0; i < Width; i++)
             {
                 for (int j = 0; j < Height; j++)
@@ -73,6 +117,12 @@ namespace app.logics
             }
         }
 
+        /// <summary>
+        /// Method for setting map
+        /// </summary>
+        /// <param name="w">New map width</param>
+        /// <param name="h">New map height</param>
+        /// <param name="map">New map array</param>
         public void setMap(int w, int h, ref CellTypes[,,] map)
         {
             resize_map(w, h);
@@ -91,6 +141,12 @@ namespace app.logics
             }
         }
 
+        /// <summary>
+        /// Method to set cell type
+        /// </summary>
+        /// <param name="x">Cell position X</param>
+        /// <param name="y">Cell position Y</param>
+        /// <param name="type">New cell type</param>
         public void setCellType(int x, int y, CellTypes type)
         {
             switch (type)
@@ -124,10 +180,18 @@ namespace app.logics
             }
         }
 
+        /// <summary>
+        /// Method to make road between two objects
+        /// </summary>
+        /// <param name="pos1">First object position (start)</param>
+        /// <param name="pos2">Second object position (end)</param>
+        /// <param name="type">New road type</param>
+        /// <returns>New road distance</returns>
         public int makeRoad(Vector2 pos1, Vector2 pos2, CellTypes type)
         {
             int dist = 0;
 
+            // if the road is aerial, then ignore the water on the map
             if (type == CellTypes.cell_road_air)
             {
                 Vector2 t;
@@ -177,21 +241,45 @@ namespace app.logics
             return dist;
         }
 
+        /// <summary>
+        /// Get empty vertex for Dijkstra algorithm
+        /// </summary>
+        /// <param name="pos">Pos for vertex</param>
+        /// <returns>New vertex</returns>
         public Vertex getVertex(Vector2 pos)
         {
             return new Vertex((int)pos.X, (int)pos.Y, getCellRoadType(pos));
         }
         
+        /// <summary>
+        /// Get empty vertex with current type for Dijkstra algorithm
+        /// </summary>
+        /// <param name="pos">Pos for vertex</param>
+        /// <param name="type">New vertex type</param>
+        /// <returns>New vertex</returns>
         public Vertex getVertex(Vector2 pos, CellTypes type)
         {
             return new Vertex((int)pos.X, (int)pos.Y, type);
         }
 
+        /// <summary>
+        /// Add road to graph
+        /// </summary>
+        /// <param name="pos1">First vertex position (start)</param>
+        /// <param name="pos2">Second vertex position (end)</param>
+        /// <param name="type">Road type</param>
         public void addRoad(Vector2 pos1, Vector2 pos2, CellTypes type)
         {
             _graph.addRoad(getVertex(pos1), getVertex(pos2), type, makeRoad(pos1, pos2, type));
         }
 
+        /// <summary>
+        /// Check if road exists
+        /// </summary>
+        /// <param name="pos1">First vertex position (start)</param>
+        /// <param name="pos2">Second vertex position (end)</param>
+        /// <param name="type">Road type</param>
+        /// <returns>If road exists, then return true, else return false</returns>
         public bool checkRoad(Vector2 pos1, Vector2 pos2, CellTypes type)
         {
             if (_graph.containsRoad(getVertex(pos1), getVertex(pos2), type))
@@ -200,6 +288,14 @@ namespace app.logics
             return true;
         }
 
+        /// <summary>
+        /// Method that find the path between start and end
+        ///
+        /// This method works for car road or railway
+        /// </summary>
+        /// <param name="pos_start">Position for start</param>
+        /// <param name="pos_end">Position for end</param>
+        /// <returns>The path</returns>
         public List<Vector2> findPath(Vector2 pos_start, Vector2 pos_end)
         {
             List<Vector2> path = new List<Vector2> { };
@@ -267,6 +363,11 @@ namespace app.logics
             return path;
         }
 
+        /// <summary>
+        /// Function for finding path
+        ///
+        /// for more information check https://habr.com/ru/post/444828/
+        /// </summary>
         public bool make_step(ref int[,] matrix, int k)
         {
             bool flag = false;
@@ -304,9 +405,12 @@ namespace app.logics
             return flag;
         }
         
-        public void DeleteRoads(Vector2 pos, CellTypes type)
+        /// <summary>
+        /// Delete road that contains current cell
+        /// </summary>
+        /// <param name="pos">Current cell</param>
+        public void DeleteRoads(Vector2 pos)
         {
-            
             _graph.deleteRoads(pos);
 
             clearRoads();
@@ -331,6 +435,11 @@ namespace app.logics
             }
         }
 
+        /// <summary>
+        /// Clear all roads for map
+        ///
+        /// That method doesn't delete any roads
+        /// </summary>
         public void clearRoads()
         {
             for (int i = 0; i < Width; i++)
@@ -344,6 +453,9 @@ namespace app.logics
             }
         }
 
+        /// <summary>
+        /// Clear all cell in map, include buildings and water
+        /// </summary>
         public void clearAll()
         {
             for (int i = 0; i < Width; i++)
@@ -362,28 +474,35 @@ namespace app.logics
             _graph = new Graph();
         }
 
-        public Tuple<errorCodes, PathInfo> DijkstraAlgorim(Vertex start, Vertex end)
-        {
-            return _graph.DijkstraAlgorim(start, end);
-        }
-
+        /// <summary>
+        /// Returns road type for cell
+        /// </summary>
+        /// <param name="pos">Cell position</param>
+        /// <returns>Road cell type</returns>
         public CellTypes getCellRoadType(Vector2 pos)
         {
             if (_map[(int)pos.X, (int)pos.Y, CellIndexes.isCarRoad] == CellTypes.cell_road_car)
             {
                 return CellTypes.cell_road_car;
-            }else if (_map[(int)pos.X, (int)pos.Y, CellIndexes.isRailway] == CellTypes.cell_road_train)
+            }
+            if (_map[(int)pos.X, (int)pos.Y, CellIndexes.isRailway] == CellTypes.cell_road_train)
             {
                 return CellTypes.cell_road_train;
-            }else if (_map[(int)pos.X, (int)pos.Y, CellIndexes.isRailway] == CellTypes.cell_road_air)
+            }
+            if (_map[(int)pos.X, (int)pos.Y, CellIndexes.isRailway] == CellTypes.cell_road_air)
             {
                 return CellTypes.cell_road_air;
-            }else
-            {
-                return CellTypes.cell_none;
             }
+            
+            return CellTypes.cell_none;
         }
 
+        /// <summary>
+        /// Method that returns path with error code
+        /// </summary>
+        /// <param name="start">Start cell position</param>
+        /// <param name="end">End cell position</param>
+        /// <returns>Returns path info with error code</returns>
         public Tuple<errorCodes, PathInfo> getPath(Vector2 start, Vector2 end)
         {
             if (start.X > Width - 1 || start.Y > Height - 1)
